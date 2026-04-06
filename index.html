@@ -45,6 +45,8 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .state-title { font-family: 'Playfair Display', serif; font-size: 26px; color: #1A2744; margin-bottom: 8px; }
     .state-sub { font-family: 'Courier Prime', monospace; font-size: 12px; letter-spacing: 2px; color: #8B7355; }
+    .error-box { background: #2C0A0A; border: 1px solid #8B1A1A; border-radius: 4px; padding: 16px 20px; margin-top: 16px; font-family: 'Courier Prime', monospace; font-size: 12px; color: #FF9999; text-align: left; word-break: break-all; line-height: 1.6; }
+    .error-box strong { color: #FF5555; display: block; margin-bottom: 6px; font-size: 13px; }
     .section-rule { text-align: center; color: #C8962A; font-size: 18px; letter-spacing: 4px; margin-bottom: 16px; position: relative; }
     .section-rule::before, .section-rule::after { content: ''; position: absolute; top: 50%; width: 38%; height: 1px; background: #C8962A; opacity: .35; }
     .section-rule::before { left: 0; } .section-rule::after { right: 0; }
@@ -96,6 +98,7 @@
         <span class="state-icon" id="stateIcon">🗺️</span>
         <div class="state-title" id="stateTitle">Where shall we explore?</div>
         <div class="state-sub" id="stateSub">Save your API key, type a city, and pick a vibe.</div>
+        <div class="error-box hidden" id="errorBox"><strong>⚠️ Error Details:</strong><span id="errorText"></span></div>
       </div>
     </div>
     <div id="resultsArea" class="hidden">
@@ -108,7 +111,7 @@
   </main>
 
   <script>
-    const VIBES = [
+    var VIBES = [
       { label: "Chill", emoji: "🌿" },
       { label: "Adventurous", emoji: "🗺️" },
       { label: "Budget", emoji: "💸" },
@@ -116,7 +119,7 @@
       { label: "Local", emoji: "🏘️" },
       { label: "Romantic", emoji: "🌹" }
     ];
-    const CAT_META = {
+    var CAT_META = {
       Food:      { emoji: "🍽️", color: "#8B1A1A" },
       Explore:   { emoji: "🧭", color: "#1A3A4A" },
       Nightlife: { emoji: "🌙", color: "#2A1A4A" },
@@ -125,23 +128,25 @@
       Shop:      { emoji: "🛍️", color: "#3A1A3A" }
     };
 
-    let selectedVibe = "Chill";
-    let apiKey = localStorage.getItem("hg_api_key") || "";
+    var selectedVibe = "Chill";
+    var apiKey = localStorage.getItem("hg_api_key") || "";
 
-    const cityInput   = document.getElementById("cityInput");
-    const exploreBtn  = document.getElementById("exploreBtn");
-    const vibesRow    = document.getElementById("vibesRow");
-    const apiKeyInput = document.getElementById("apiKeyInput");
-    const apiSaveBtn  = document.getElementById("apiSaveBtn");
-    const apiHint     = document.getElementById("apiHint");
-    const stateArea   = document.getElementById("stateArea");
-    const resultsArea = document.getElementById("resultsArea");
-    const cardsGrid   = document.getElementById("cardsGrid");
-    const cityLabel   = document.getElementById("cityLabel");
-    const vibeLabel   = document.getElementById("vibeLabel");
-    const stateIcon   = document.getElementById("stateIcon");
-    const stateTitle  = document.getElementById("stateTitle");
-    const stateSub    = document.getElementById("stateSub");
+    var cityInput   = document.getElementById("cityInput");
+    var exploreBtn  = document.getElementById("exploreBtn");
+    var vibesRow    = document.getElementById("vibesRow");
+    var apiKeyInput = document.getElementById("apiKeyInput");
+    var apiSaveBtn  = document.getElementById("apiSaveBtn");
+    var apiHint     = document.getElementById("apiHint");
+    var stateArea   = document.getElementById("stateArea");
+    var resultsArea = document.getElementById("resultsArea");
+    var cardsGrid   = document.getElementById("cardsGrid");
+    var cityLabel   = document.getElementById("cityLabel");
+    var vibeLabel   = document.getElementById("vibeLabel");
+    var stateIcon   = document.getElementById("stateIcon");
+    var stateTitle  = document.getElementById("stateTitle");
+    var stateSub    = document.getElementById("stateSub");
+    var errorBox    = document.getElementById("errorBox");
+    var errorText   = document.getElementById("errorText");
 
     function buildVibes() {
       vibesRow.innerHTML = "";
@@ -169,13 +174,20 @@
       apiHint.className = "api-hint saved";
     }
 
-    function showState(icon, title, sub, spinning) {
+    function showState(icon, title, sub, spinning, errMsg) {
       stateIcon.textContent = icon;
       stateIcon.className = "state-icon" + (spinning ? " spinning" : "");
       stateTitle.textContent = title;
       stateSub.textContent = sub;
       stateArea.classList.remove("hidden");
       resultsArea.classList.add("hidden");
+      if (errMsg) {
+        errorBox.classList.remove("hidden");
+        errorText.textContent = errMsg;
+      } else {
+        errorBox.classList.add("hidden");
+        errorText.textContent = "";
+      }
     }
 
     function esc(str) {
@@ -185,12 +197,11 @@
     }
 
     async function fetchGems(city) {
-      showState("🧭", "Exploring " + city + "…", "Consulting the local archives for hidden gems.", true);
-      resultsArea.classList.add("hidden");
+      showState("🧭", "Exploring " + city + "…", "Consulting the local archives for hidden gems.", true, null);
       exploreBtn.disabled = true;
       exploreBtn.textContent = "Searching…";
 
-      var prompt = "You are a seasoned local travel expert. List exactly 6 hidden gem spots in " + city + " for a \"" + selectedVibe + "\" vibe traveler. Include real, specific, lesser-known places — NOT tourist traps.\n\nReturn ONLY a valid JSON array. No markdown, no backticks, no explanation. Start with [ and end with ].\n\nSchema:\n[{\"name\":\"Place Name\",\"category\":\"Food\",\"description\":\"Two vivid sentences.\",\"tip\":\"One insider secret.\",\"priceRange\":\"$$\",\"mustTry\":\"Best thing to do here.\"}]\n\ncategory must be one of: Food, Explore, Nightlife, Nature, Culture, Shop\npriceRange must be one of: $, $$, $$$, $$$$";
+      var prompt = "You are a seasoned local travel expert. List exactly 6 hidden gem spots in " + city + " for a \"" + selectedVibe + "\" vibe traveler. Include real, specific, lesser-known places.\n\nReturn ONLY a valid JSON array. No markdown, no backticks, no explanation. Start with [ and end with ].\n\nSchema:\n[{\"name\":\"Place Name\",\"category\":\"Food\",\"description\":\"Two vivid sentences.\",\"tip\":\"One insider secret.\",\"priceRange\":\"$$\",\"mustTry\":\"Best thing to do here.\"}]\n\ncategory must be one of: Food, Explore, Nightlife, Nature, Culture, Shop\npriceRange must be one of: $, $$, $$$, $$$$";
 
       try {
         var res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -208,12 +219,13 @@
           })
         });
 
+        var data = await res.json();
+
         if (!res.ok) {
-          var errData = await res.json().catch(function() { return {}; });
-          throw new Error(errData.error ? errData.error.message : "API error " + res.status);
+          var apiMsg = (data.error && data.error.message) ? data.error.message : "HTTP " + res.status;
+          throw new Error("API responded with " + res.status + ": " + apiMsg);
         }
 
-        var data = await res.json();
         var raw = data.content[0].text.replace(/```json|```/g, "").trim();
         var spots = JSON.parse(raw);
 
@@ -244,11 +256,8 @@
         resultsArea.classList.remove("hidden");
 
       } catch(err) {
-        console.error(err);
-        var msg = (err.message && err.message.includes("401"))
-          ? "Invalid API key — save your new one above."
-          : "Could not load results. Open browser console (F12) for details.";
-        showState("⚠️", "Something went wrong", msg);
+        var display = err.message || "Unknown error";
+        showState("⚠️", "Something went wrong", "Here is the exact error:", false, display);
       }
 
       exploreBtn.disabled = false;
@@ -257,8 +266,8 @@
 
     async function handleExplore() {
       var city = cityInput.value.trim();
-      if (!apiKey) { showState("🔑", "API key required", "Paste your Anthropic API key above and click Save Key."); return; }
-      if (!city)   { showState("✏️", "Enter a city first", "Type any city name in the search bar above."); return; }
+      if (!apiKey) { showState("🔑", "API key required", "Paste your Anthropic API key above and click Save Key.", false, null); return; }
+      if (!city)   { showState("✏️", "Enter a city first", "Type any city name in the search bar above.", false, null); return; }
       await fetchGems(city);
     }
 
