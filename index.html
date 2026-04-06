@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hidden Gems — City Guide</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Special+Elite&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ══ GRAIN OVERLAY ══ -->
+
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- ══ HERO ══ -->
+
+  <header class="hero">
+    <div class="hero-lines" aria-hidden="true"></div>
+
+```
+<p class="hero-badge">✦ The Traveler's Companion ✦</p>
+<h1 class="hero-title">Hidden <em>Gems</em></h1>
+<p class="hero-tagline">— discover what the guidebooks miss —</p>
+
+<!-- API Key Row -->
+<div class="api-row" id="apiRow">
+  <input
+    type="password"
+    id="apiKeyInput"
+    class="api-input"
+    placeholder="Paste your Anthropic API key to get started..."
+    autocomplete="off"
+  />
+  <button class="api-save-btn" id="apiSaveBtn">Save Key</button>
+</div>
+<p class="api-hint" id="apiHint">
+  🔑 Get a free key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
+</p>
+
+<!-- Search Row -->
+<div class="search-wrap">
+  <div class="input-row">
+    <input
+      type="text"
+      id="cityInput"
+      class="city-input"
+      placeholder="Enter any city in the world..."
+      autocomplete="off"
+    />
+    <button class="go-btn" id="exploreBtn">Explore →</button>
+  </div>
+
+  <!-- Vibe Selector -->
+  <div class="vibes-row" id="vibesRow">
+    <!-- Injected by script.js -->
+  </div>
+</div>
+```
+
+  </header>
+
+  <!-- ══ MAIN CONTENT ══ -->
+
+  <main class="main-body">
+
+```
+<!-- Empty / Loading / Error state -->
+<div id="stateArea">
+  <div class="state-box">
+    <div class="state-icon" id="stateIcon">🗺️</div>
+    <div class="state-title" id="stateTitle">Where shall we explore?</div>
+    <div class="state-sub" id="stateSub">Save your API key, type a city, and choose a vibe.</div>
+  </div>
+</div>
+
+<!-- Results -->
+<div id="resultsArea" class="hidden">
+  <div class="section-rule">✦</div>
+  <h2 class="section-heading">
+    Your curated guide to <em id="cityLabel"></em>
+  </h2>
+  <p class="section-sub" id="vibeLabel"></p>
+  <div class="cards-grid" id="cardsGrid">
+    <!-- Cards injected by script.js -->
+  </div>
+</div>
+
+<footer class="page-footer">
+  ✦ Hidden Gems &nbsp;·&nbsp; Every City Has A Story &nbsp;·&nbsp; Est. 2025 ✦
+</footer>
+```
+
+  </main>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
