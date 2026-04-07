@@ -9,656 +9,1145 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Special+Elite&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <style>
+    /* ═══ CSS VARIABLES (light + dark mode) ═══ */
+    :root {
+      --bg: #F0E3C5; --hero: #1A2744; --gold: #C8962A; --gold-h: #E0A830;
+      --text: #1A2744; --text2: #2C1810; --muted: #8B7355; --card: #FBF4E2;
+      --border: #D4B896; --shadow: #D4B896; --label: #9B8565;
+      --info-bg: #1A2744; --info-text: #F0E3C5;
+    }
+    body.dark {
+      --bg: #0D1117; --hero: #060A0F; --text: #E8DCC8; --text2: #C8B898;
+      --muted: #7A6A55; --card: #161B22; --border: #2A3040;
+      --shadow: #0A0E14; --label: #6A5A45; --info-bg: #060A0F;
+      --info-text: #E8DCC8;
+    }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background-color: #F0E3C5; font-family: 'Special Elite', monospace; color: #1A2744; min-height: 100vh; }
+    body { background-color: var(--bg); font-family: 'Special Elite', monospace; color: var(--text); min-height: 100vh; transition: background .3s, color .3s; }
 
-    .hero { background-color: #1A2744; padding: 40px 24px 44px; text-align: center; position: relative; overflow: hidden; }
-    .hero::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, transparent, transparent 48px, rgba(200,150,42,.055) 48px, rgba(200,150,42,.055) 49px), repeating-linear-gradient(90deg, transparent, transparent 48px, rgba(200,150,42,.035) 48px, rgba(200,150,42,.035) 49px); }
-    .hero-badge { display: inline-block; border: 1.5px solid #C8962A; color: #C8962A; font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 5px; text-transform: uppercase; padding: 5px 20px; margin-bottom: 18px; position: relative; z-index: 1; }
-    .hero-title { font-family: 'Playfair Display', serif; font-size: clamp(48px, 10vw, 90px); font-weight: 900; color: #F0E3C5; line-height: 0.92; letter-spacing: -3px; margin-bottom: 8px; position: relative; z-index: 1; }
-    .hero-title em { color: #C8962A; font-style: italic; }
-    .hero-tagline { font-family: 'Courier Prime', monospace; color: rgba(240,227,197,.42); font-size: 12px; letter-spacing: 3px; margin-bottom: 28px; position: relative; z-index: 1; }
+    /* ═══ INTRO SCREEN ═══ */
+    #introScreen {
+      position: fixed; inset: 0; z-index: 900;
+      background: #07111E;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 1.2s ease;
+      overflow: hidden;
+    }
+    #introScreen.fade-out { opacity: 0; pointer-events: none; }
+    #introMap { position: absolute; inset: 0; opacity: 0.2; filter: sepia(20%) brightness(0.7); z-index: 0; }
+    .intro-vignette { position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse at center, transparent 30%, rgba(7,17,30,0.85) 100%); pointer-events: none; }
+    .intro-content { position: relative; z-index: 2; text-align: center; padding: 32px 24px; }
+    .intro-badge { display: inline-block; border: 1px solid rgba(200,150,42,.55); color: rgba(200,150,42,.8); font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 6px; text-transform: uppercase; padding: 6px 22px; margin-bottom: 28px; animation: introFade 1s ease 0.3s both; }
+    .intro-title { font-family: 'Playfair Display', serif; font-size: clamp(70px, 14vw, 136px); font-weight: 900; color: #F0E3C5; line-height: 0.88; letter-spacing: -5px; margin-bottom: 18px; animation: introFade 1s ease 0.55s both; }
+    .intro-title em { color: #C8962A; font-style: italic; }
+    .intro-tagline { font-family: 'Special Elite', monospace; color: rgba(240,227,197,.45); font-size: 15px; letter-spacing: 4px; margin-bottom: 36px; animation: introFade 1s ease 0.75s both; }
+    .intro-pills { display: flex; gap: 14px; justify-content: center; align-items: center; flex-wrap: wrap; font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 2px; color: rgba(200,150,42,.55); margin-bottom: 48px; animation: introFade 1s ease 0.95s both; }
+    .intro-pill { border: 1px solid rgba(200,150,42,.25); padding: 5px 14px; }
+    .intro-btn { background: transparent; border: 2px solid #C8962A; color: #C8962A; font-family: 'Courier Prime', monospace; font-weight: 700; font-size: 12px; letter-spacing: 4px; text-transform: uppercase; padding: 17px 44px; cursor: pointer; transition: all .25s; animation: introFade 1s ease 1.15s both; }
+    .intro-btn:hover { background: #C8962A; color: #07111E; box-shadow: 0 0 40px rgba(200,150,42,.35); }
+    @keyframes introFade { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
+    /* ═══ HERO ═══ */
+    .hero { background-color: var(--hero); padding: 40px 24px 44px; text-align: center; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, transparent, transparent 48px, rgba(200,150,42,.045) 48px, rgba(200,150,42,.045) 49px), repeating-linear-gradient(90deg, transparent, transparent 48px, rgba(200,150,42,.03) 48px, rgba(200,150,42,.03) 49px); }
+    .hero-top-bar { position: absolute; top: 16px; right: 20px; display: flex; gap: 10px; z-index: 2; }
+    .icon-btn { background: rgba(255,255,255,.07); border: 1px solid rgba(200,150,42,.35); color: rgba(240,227,197,.7); font-size: 14px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .18s; border-radius: 0; font-family: monospace; }
+    .icon-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .hero-badge { display: inline-block; border: 1.5px solid var(--gold); color: var(--gold); font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 5px; text-transform: uppercase; padding: 5px 20px; margin-bottom: 16px; position: relative; z-index: 1; }
+    .hero-title { font-family: 'Playfair Display', serif; font-size: clamp(46px, 9vw, 86px); font-weight: 900; color: #F0E3C5; line-height: 0.92; letter-spacing: -3px; margin-bottom: 8px; position: relative; z-index: 1; }
+    .hero-title em { color: var(--gold); font-style: italic; }
+    .hero-tagline { font-family: 'Courier Prime', monospace; color: rgba(240,227,197,.4); font-size: 12px; letter-spacing: 3px; margin-bottom: 24px; position: relative; z-index: 1; }
+
+    /* Search history */
+    .history-wrap { max-width: 860px; margin: 0 auto 12px; text-align: left; position: relative; z-index: 1; }
+    .history-label { font-family: 'Courier Prime', monospace; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: rgba(240,227,197,.3); margin-bottom: 6px; }
+    .history-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .history-chip { background: rgba(255,255,255,.05); border: 1px solid rgba(200,150,42,.25); color: rgba(240,227,197,.55); font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 1px; padding: 4px 12px; cursor: pointer; transition: all .15s; }
+    .history-chip:hover { border-color: var(--gold); color: #F0E3C5; }
+
+    /* Picker */
     .picker-wrap { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
-    .picker-top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0; gap: 10px; flex-wrap: wrap; }
+    .picker-top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
     .tab-row { display: flex; }
-    .tab-btn { background-color: rgba(255,255,255,.06); border: 1px solid rgba(200,150,42,.4); color: #F0E3C5; font-family: 'Courier Prime', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 10px 22px; cursor: pointer; margin-right: -1px; transition: all .18s; }
-    .tab-btn:hover { border-color: #C8962A; }
-    .tab-btn.active { background-color: #C8962A; border-color: #C8962A; color: #1A2744; }
-    .surprise-btn { background-color: transparent; border: 1.5px solid #C8962A; color: #C8962A; font-family: 'Courier Prime', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 10px 18px; cursor: pointer; transition: all .18s; white-space: nowrap; }
-    .surprise-btn:hover { background-color: #C8962A; color: #1A2744; }
-
+    .tab-btn { background: rgba(255,255,255,.06); border: 1px solid rgba(200,150,42,.4); color: #F0E3C5; font-family: 'Courier Prime', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 10px 20px; cursor: pointer; margin-right: -1px; transition: all .18s; }
+    .tab-btn:hover { border-color: var(--gold); }
+    .tab-btn.active { background: var(--gold); border-color: var(--gold); color: #1A2744; }
+    .surprise-btn { background: transparent; border: 1.5px solid var(--gold); color: var(--gold); font-family: 'Courier Prime', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 10px 16px; cursor: pointer; transition: all .18s; white-space: nowrap; }
+    .surprise-btn:hover { background: var(--gold); color: #1A2744; }
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
-
-    /* MAP — Esri dark tiles use English labels */
-    #map { width: 100%; height: 300px; border: 2px solid #C8962A; cursor: crosshair; }
-    .map-hint { font-family: 'Courier Prime', monospace; font-size: 11px; color: rgba(240,227,197,.4); text-align: center; padding: 6px 0 0; letter-spacing: 1px; }
-    .map-selected { font-family: 'Courier Prime', monospace; font-size: 12px; color: #C8962A; text-align: center; padding: 4px 0 0; min-height: 20px; font-weight: 700; }
-
+    #map { width: 100%; height: 290px; border: 2px solid var(--gold); cursor: crosshair; }
+    .map-hint { font-family: 'Courier Prime', monospace; font-size: 11px; color: rgba(240,227,197,.38); text-align: center; padding: 6px 0 0; letter-spacing: 1px; }
+    .map-selected { font-family: 'Courier Prime', monospace; font-size: 12px; color: var(--gold); text-align: center; padding: 4px 0 0; min-height: 20px; font-weight: 700; }
     .browse-panel { padding: 12px 0 0; }
-    .country-search { width: 100%; background-color: rgba(255,255,255,.08); border: 1px solid rgba(200,150,42,.5); color: #F0E3C5; font-family: 'Courier Prime', monospace; font-size: 13px; padding: 10px 14px; outline: none; margin-bottom: 10px; }
+    .country-search { width: 100%; background: rgba(255,255,255,.08); border: 1px solid rgba(200,150,42,.5); color: #F0E3C5; font-family: 'Courier Prime', monospace; font-size: 13px; padding: 10px 14px; outline: none; margin-bottom: 10px; }
     .country-search::placeholder { color: rgba(240,227,197,.3); }
     .countries-list { max-height: 240px; overflow-y: auto; }
     .countries-list::-webkit-scrollbar { width: 4px; }
-    .countries-list::-webkit-scrollbar-thumb { background: #C8962A; }
+    .countries-list::-webkit-scrollbar-thumb { background: var(--gold); }
     .country-block { margin-bottom: 10px; }
-    .country-label { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: rgba(240,227,197,.38); padding: 3px 2px; border-bottom: 1px solid rgba(200,150,42,.18); margin-bottom: 6px; }
+    .country-label { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: rgba(240,227,197,.35); padding: 3px 2px; border-bottom: 1px solid rgba(200,150,42,.16); margin-bottom: 6px; }
     .city-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-    .city-chip { background-color: rgba(255,255,255,.07); border: 1px solid rgba(200,150,42,.32); color: #F0E3C5; font-family: 'Courier Prime', monospace; font-size: 11px; padding: 5px 12px; cursor: pointer; transition: all .15s; }
-    .city-chip:hover { background-color: rgba(200,150,42,.28); border-color: #C8962A; }
-    .city-chip.selected { background-color: #C8962A; border-color: #C8962A; color: #1A2744; font-weight: 700; }
-
+    .city-chip { background: rgba(255,255,255,.07); border: 1px solid rgba(200,150,42,.3); color: #F0E3C5; font-family: 'Courier Prime', monospace; font-size: 11px; padding: 5px 12px; cursor: pointer; transition: all .15s; }
+    .city-chip:hover { background: rgba(200,150,42,.25); border-color: var(--gold); }
+    .city-chip.selected { background: var(--gold); border-color: var(--gold); color: #1A2744; font-weight: 700; }
     .type-panel { padding: 12px 0 0; }
-    .city-type-input { width: 100%; background-color: rgba(255,255,255,.08); border: 2px solid #C8962A; color: #F0E3C5; font-family: 'Special Elite', monospace; font-size: 16px; padding: 14px 18px; outline: none; }
+    .city-type-input { width: 100%; background: rgba(255,255,255,.08); border: 2px solid var(--gold); color: #F0E3C5; font-family: 'Special Elite', monospace; font-size: 16px; padding: 14px 18px; outline: none; }
     .city-type-input::placeholder { color: rgba(240,227,197,.3); }
-
     .vibes-go-wrap { margin-top: 13px; }
     .vibes-row { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; margin-bottom: 11px; }
-    .vibe-btn { background-color: transparent; border: 1px solid rgba(200,150,42,.38); color: #F0E3C5; font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 1px; padding: 7px 14px; cursor: pointer; transition: all .18s; }
-    .vibe-btn:hover { border-color: #C8962A; }
-    .vibe-btn.active { background-color: #C8962A; border-color: #C8962A; color: #1A2744; font-weight: 700; }
-    .go-btn { width: 100%; background-color: #C8962A; border: none; color: #1A2744; font-family: 'Courier Prime', monospace; font-weight: 700; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; padding: 15px; cursor: pointer; transition: background .2s; }
-    .go-btn:hover:not(:disabled) { background-color: #E0A830; }
+    .vibe-btn { background: transparent; border: 1px solid rgba(200,150,42,.38); color: #F0E3C5; font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 1px; padding: 7px 14px; cursor: pointer; transition: all .18s; }
+    .vibe-btn:hover { border-color: var(--gold); }
+    .vibe-btn.active { background: var(--gold); border-color: var(--gold); color: #1A2744; font-weight: 700; }
+    .go-btn { width: 100%; background: var(--gold); border: none; color: #1A2744; font-family: 'Courier Prime', monospace; font-weight: 700; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; padding: 15px; cursor: pointer; transition: background .2s; }
+    .go-btn:hover:not(:disabled) { background: var(--gold-h); }
     .go-btn:disabled { opacity: .45; cursor: not-allowed; }
 
-    .main-body { max-width: 1180px; margin: 0 auto; padding: 48px 24px 32px; }
+    /* ═══ MAIN ═══ */
+    .main-body { max-width: 1200px; margin: 0 auto; padding: 0 24px 40px; }
     .hidden { display: none !important; }
 
+    /* STATE */
     .state-box { text-align: center; padding: 70px 24px; }
     .state-icon { font-size: 52px; margin-bottom: 16px; display: block; }
     .state-icon.spinning { display: inline-block; animation: spin 1.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .state-title { font-family: 'Playfair Display', serif; font-size: 24px; color: #1A2744; margin-bottom: 8px; }
-    .state-sub { font-family: 'Courier Prime', monospace; font-size: 12px; letter-spacing: 2px; color: #8B7355; }
-    .error-box { background-color: #2C0A0A; border: 1px solid #8B1A1A; padding: 13px 16px; margin-top: 13px; font-family: 'Courier Prime', monospace; font-size: 12px; color: #FF9999; text-align: left; word-break: break-all; line-height: 1.6; max-width: 500px; margin-left: auto; margin-right: auto; }
+    .state-title { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--text); margin-bottom: 8px; }
+    .state-sub { font-family: 'Courier Prime', monospace; font-size: 12px; letter-spacing: 2px; color: var(--muted); }
+    .error-box { background: #2C0A0A; border: 1px solid #8B1A1A; padding: 13px 16px; margin-top: 13px; font-family: 'Courier Prime', monospace; font-size: 12px; color: #FF9999; text-align: left; word-break: break-all; line-height: 1.6; max-width: 520px; margin-left: auto; margin-right: auto; }
     .error-box strong { color: #FF5555; display: block; margin-bottom: 4px; }
 
-    .info-bar { background-color: #1A2744; padding: 20px 28px; margin-bottom: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
-    .info-item { text-align: center; }
-    .info-label { font-family: 'Courier Prime', monospace; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: rgba(200,150,42,.7); margin-bottom: 5px; }
-    .info-value { font-family: 'Playfair Display', serif; font-size: 18px; color: #F0E3C5; font-weight: 700; line-height: 1.2; }
-    .info-sub { font-family: 'Courier Prime', monospace; font-size: 11px; color: rgba(240,227,197,.45); margin-top: 3px; letter-spacing: .5px; }
+    /* ═══ BIG INFO BANNER ═══ */
+    .city-banner { background: var(--info-bg); padding: 32px 36px 24px; margin-bottom: 0; }
+    .city-banner-top { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; }
+    .city-banner-name { font-family: 'Playfair Display', serif; font-size: clamp(36px, 6vw, 64px); font-weight: 900; color: #F0E3C5; line-height: 1; }
+    .city-banner-name em { color: var(--gold); font-style: italic; }
+    .city-banner-vibe { font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 4px; color: rgba(200,150,42,.7); text-transform: uppercase; margin-top: 4px; }
+    .city-banner-weather { text-align: right; }
+    .city-banner-temp { font-family: 'Playfair Display', serif; font-size: 52px; font-weight: 700; color: #F0E3C5; line-height: 1; }
+    .city-banner-cond { font-family: 'Courier Prime', monospace; font-size: 12px; color: rgba(240,227,197,.5); letter-spacing: 1px; margin-top: 2px; }
+    .city-banner-divider { height: 1px; background: rgba(200,150,42,.2); margin-bottom: 20px; }
+    .city-stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; }
+    .city-stat { }
+    .city-stat-label { font-family: 'Courier Prime', monospace; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: rgba(200,150,42,.6); margin-bottom: 6px; }
+    .city-stat-value { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: #F0E3C5; line-height: 1.2; }
+    .city-stat-sub { font-family: 'Courier Prime', monospace; font-size: 10px; color: rgba(240,227,197,.4); margin-top: 2px; }
+    .safety-safe { color: #6AB04C !important; }
+    .safety-moderate { color: #F0A500 !important; }
+    .safety-caution { color: #FF6B6B !important; }
 
-    .section-rule { text-align: center; color: #C8962A; font-size: 14px; letter-spacing: 4px; margin-bottom: 12px; position: relative; }
-    .section-rule::before, .section-rule::after { content: ''; position: absolute; top: 50%; width: 34%; height: 1px; background-color: #C8962A; opacity: .35; }
+    /* ═══ SECTION HEADERS ═══ */
+    .section-header { padding: 40px 0 0; }
+    .section-rule { text-align: center; color: var(--gold); font-size: 14px; letter-spacing: 4px; margin-bottom: 12px; position: relative; }
+    .section-rule::before, .section-rule::after { content: ''; position: absolute; top: 50%; width: 32%; height: 1px; background: var(--gold); opacity: .3; }
     .section-rule::before { left: 0; } .section-rule::after { right: 0; }
-    .section-heading { font-family: 'Playfair Display', serif; font-size: clamp(24px, 4vw, 38px); font-weight: 700; text-align: center; color: #1A2744; margin-bottom: 4px; }
+    .section-heading { font-family: 'Playfair Display', serif; font-size: clamp(22px, 4vw, 36px); font-weight: 700; text-align: center; color: var(--text); margin-bottom: 4px; }
     .section-heading em { color: #8B1A1A; font-style: italic; }
-    .section-sub { text-align: center; font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 3px; color: #8B7355; text-transform: uppercase; margin-bottom: 32px; }
+    .section-sub { text-align: center; font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 28px; }
 
-    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
-    .card { background-color: #FBF4E2; border: 1px solid #D4B896; box-shadow: 4px 4px 0 #D4B896; overflow: hidden; opacity: 0; animation: fadeUp .45s ease forwards; transition: transform .2s, box-shadow .2s; position: relative; }
+    /* ═══ CATEGORY FILTER ═══ */
+    .cat-filter { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; margin: 20px 0 28px; }
+    .cat-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; padding: 7px 16px; cursor: pointer; transition: all .18s; }
+    .cat-btn:hover { border-color: var(--gold); color: var(--text); }
+    .cat-btn.active { background: var(--gold); border-color: var(--gold); color: #1A2744; font-weight: 700; }
+
+    /* View toggle */
+    .results-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+    .results-count { font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 2px; color: var(--muted); }
+    .toolbar-right { display: flex; gap: 8px; }
+    .view-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 1px; padding: 6px 12px; cursor: pointer; transition: all .15s; }
+    .view-btn.active { background: var(--gold); border-color: var(--gold); color: #1A2744; }
+    .share-all-btn { background: transparent; border: 1px solid rgba(200,150,42,.4); color: var(--gold); font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 1px; padding: 6px 14px; cursor: pointer; transition: all .15s; text-transform: uppercase; }
+    .share-all-btn:hover { background: var(--gold); color: #1A2744; }
+
+    /* ═══ CARDS ═══ */
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 22px; }
+    .cards-grid.list-view { grid-template-columns: 1fr; }
+    .cards-grid.list-view .card { display: flex; flex-direction: row; }
+    .cards-grid.list-view .card-img-wrap { width: 220px; flex-shrink: 0; height: auto; min-height: 180px; }
+    .cards-grid.list-view .card-body { flex: 1; }
+    .card { background: var(--card); border: 1px solid var(--border); box-shadow: 4px 4px 0 var(--shadow); overflow: hidden; opacity: 0; animation: fadeUp .45s ease forwards; transition: transform .2s, box-shadow .2s; position: relative; }
+    .card.cat-hidden { display: none; }
     .card:nth-child(1){animation-delay:0s} .card:nth-child(2){animation-delay:.07s} .card:nth-child(3){animation-delay:.14s} .card:nth-child(4){animation-delay:.21s} .card:nth-child(5){animation-delay:.28s} .card:nth-child(6){animation-delay:.35s}
     @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-    .card:hover { transform: translate(-3px,-3px); box-shadow: 7px 7px 0 #C8962A; }
-
-    .card-img-wrap { position: relative; height: 195px; overflow: hidden; background-color: #1A2744; }
+    .card:hover { transform: translate(-3px,-3px); box-shadow: 7px 7px 0 var(--gold); }
+    .card-img-wrap { position: relative; height: 195px; overflow: hidden; background: #1A2744; }
     .card-img { width: 100%; height: 100%; object-fit: cover; display: block; filter: sepia(15%) contrast(1.05); transition: transform .4s ease; }
     .card:hover .card-img { transform: scale(1.04); }
     .card-img-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(26,39,68,.04) 0%, rgba(26,39,68,.6) 100%); }
-    .card-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 14px; font-style: italic; color: rgba(240,227,197,.35); letter-spacing: 2px; padding: 16px; text-align: center; }
-    .card-stamp { position: absolute; bottom: 12px; left: 12px; font-family: 'Courier Prime', monospace; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #F0E3C5; padding: 4px 10px; background-color: rgba(26,39,68,.85); }
-    .card-price-badge { position: absolute; top: 10px; right: 10px; font-family: 'Courier Prime', monospace; font-size: 11px; font-weight: 700; color: #1A2744; background-color: #C8962A; padding: 3px 8px; }
-
+    .card-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 14px; font-style: italic; color: rgba(240,227,197,.3); letter-spacing: 2px; padding: 16px; text-align: center; }
+    .card-stamp { position: absolute; bottom: 12px; left: 12px; font-family: 'Courier Prime', monospace; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #F0E3C5; padding: 4px 10px; background: rgba(26,39,68,.88); }
+    .card-price-badge { position: absolute; top: 10px; right: 10px; font-family: 'Courier Prime', monospace; font-size: 11px; font-weight: 700; color: #1A2744; background: var(--gold); padding: 3px 8px; }
     .card-body { padding: 16px 18px 6px; }
-    .card-name { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; line-height: 1.15; color: #1A2744; margin-bottom: 9px; }
-    .card-desc { font-size: 13px; line-height: 1.7; color: #2C1810; margin-bottom: 13px; }
-    .card-divider { height: 1px; background-color: #D4B896; margin-bottom: 11px; }
+    .card-name { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; line-height: 1.15; color: var(--text); margin-bottom: 9px; }
+    .card-desc { font-size: 13px; line-height: 1.7; color: var(--text2); margin-bottom: 13px; }
+    .card-divider { height: 1px; background: var(--border); margin-bottom: 11px; }
     .card-info { margin-bottom: 9px; }
-    .card-info-label { font-family: 'Courier Prime', monospace; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: #9B8565; margin-bottom: 2px; }
-    .card-info-text { font-size: 13px; line-height: 1.45; color: #2C1810; }
-
-    .card-actions { display: flex; border-top: 1px solid #D4B896; margin-top: 4px; }
-    .card-action-btn { flex: 1; background-color: transparent; border: none; border-right: 1px solid #D4B896; padding: 10px 8px; font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #9B8565; cursor: pointer; transition: all .18s; }
+    .card-info-label { font-family: 'Courier Prime', monospace; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--label); margin-bottom: 2px; }
+    .card-info-text { font-size: 13px; line-height: 1.45; color: var(--text2); }
+    .card-actions { display: flex; border-top: 1px solid var(--border); margin-top: 4px; }
+    .card-action-btn { flex: 1; background: transparent; border: none; border-right: 1px solid var(--border); padding: 9px 6px; font-family: 'Courier Prime', monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--label); cursor: pointer; transition: all .18s; }
     .card-action-btn:last-child { border-right: none; }
-    .card-action-btn:hover { background-color: #F0E3C5; color: #1A2744; }
-    .card-action-btn.bookmarked { color: #C8962A; font-weight: 700; }
-
-    .day-picker { display: none; position: absolute; background-color: #1A2744; border: 1.5px solid #C8962A; padding: 10px; z-index: 100; bottom: 48px; left: 50%; transform: translateX(-50%); white-space: nowrap; }
+    .card-action-btn:hover { background: var(--bg); color: var(--text); }
+    .card-action-btn.bookmarked { color: var(--gold); font-weight: 700; }
+    .day-picker { display: none; position: absolute; background: #1A2744; border: 1.5px solid var(--gold); padding: 10px; z-index: 100; bottom: 44px; left: 50%; transform: translateX(-50%); white-space: nowrap; }
     .day-picker.open { display: flex; gap: 6px; }
-    .day-pick-btn { background-color: transparent; border: 1px solid rgba(200,150,42,.5); color: #F0E3C5; font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 1px; padding: 6px 12px; cursor: pointer; transition: all .15s; }
-    .day-pick-btn:hover { background-color: #C8962A; color: #1A2744; }
+    .day-pick-btn { background: transparent; border: 1px solid rgba(200,150,42,.5); color: #F0E3C5; font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 1px; padding: 6px 12px; cursor: pointer; transition: all .15s; }
+    .day-pick-btn:hover { background: var(--gold); color: #1A2744; }
 
-    .bookmarks-section { margin-top: 52px; }
-    .bookmarks-grid { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
-    .bookmark-chip { display: flex; align-items: center; gap: 8px; background-color: #FBF4E2; border: 1px solid #D4B896; padding: 8px 14px; font-family: 'Courier Prime', monospace; font-size: 12px; color: #1A2744; }
-    .bookmark-chip-cat { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #9B8565; }
-    .bookmark-remove { background: none; border: none; color: #9B8565; cursor: pointer; font-size: 14px; line-height: 1; padding: 0 0 0 6px; }
+    /* ═══ LOCAL PHRASES ═══ */
+    .phrases-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-top: 4px; }
+    .phrase-card { background: var(--card); border: 1px solid var(--border); padding: 14px 16px; }
+    .phrase-text { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .phrase-meaning { font-family: 'Courier Prime', monospace; font-size: 11px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .phrase-pron { font-family: 'Special Elite', monospace; font-size: 12px; color: var(--muted); font-style: italic; }
+
+    /* ═══ NEARBY CITIES ═══ */
+    .nearby-chips { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+    .nearby-chip { background: var(--card); border: 1.5px solid var(--border); color: var(--text); font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; padding: 10px 22px; cursor: pointer; transition: all .2s; }
+    .nearby-chip:hover { border-color: var(--gold); box-shadow: 3px 3px 0 var(--gold); transform: translate(-2px,-2px); }
+
+    /* ═══ SAFETY CALLOUT ═══ */
+    .safety-box { background: var(--card); border-left: 4px solid var(--gold); padding: 14px 18px; margin-top: 24px; font-family: 'Courier Prime', monospace; font-size: 13px; color: var(--text2); line-height: 1.6; }
+    .safety-box strong { color: var(--gold); display: block; margin-bottom: 4px; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; }
+
+    /* ═══ BOOKMARKS ═══ */
+    .bookmarks-grid { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+    .bookmark-chip { display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--border); padding: 8px 14px; }
+    .bookmark-chip-name { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 14px; color: var(--text); }
+    .bookmark-chip-cat { font-family: 'Courier Prime', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+    .bookmark-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; line-height: 1; padding: 0 0 0 6px; }
     .bookmark-remove:hover { color: #8B1A1A; }
 
-    .trip-section { margin-top: 52px; }
-    .trip-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px; }
-    .trip-day { background-color: #FBF4E2; border: 1px solid #D4B896; padding: 16px; min-height: 120px; }
-    .trip-day-title { font-family: 'Courier Prime', monospace; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #C8962A; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-    .trip-clear-btn { background: none; border: none; font-family: 'Courier Prime', monospace; font-size: 9px; letter-spacing: 1px; color: #9B8565; cursor: pointer; text-transform: uppercase; }
+    /* ═══ TRIP PLANNER ═══ */
+    .trip-toolbar { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+    .print-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; padding: 8px 16px; cursor: pointer; transition: all .18s; }
+    .print-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .trip-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .trip-day { background: var(--card); border: 1px solid var(--border); padding: 16px; min-height: 110px; }
+    .trip-day-title { font-family: 'Courier Prime', monospace; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .trip-clear-btn { background: none; border: none; font-family: 'Courier Prime', monospace; font-size: 9px; letter-spacing: 1px; color: var(--muted); cursor: pointer; text-transform: uppercase; }
     .trip-clear-btn:hover { color: #8B1A1A; }
-    .trip-spot { background-color: #F0E3C5; border-left: 3px solid #C8962A; padding: 7px 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-    .trip-spot-name { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; line-height: 1.2; color: #1A2744; }
-    .trip-spot-cat { font-family: 'Courier Prime', monospace; font-size: 9px; letter-spacing: 2px; color: #9B8565; text-transform: uppercase; margin-top: 1px; }
-    .trip-remove { background: none; border: none; color: #9B8565; font-size: 14px; cursor: pointer; padding: 0; }
+    .trip-spot { background: var(--bg); border-left: 3px solid var(--gold); padding: 7px 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .trip-spot-name { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; line-height: 1.2; color: var(--text); }
+    .trip-spot-cat { font-family: 'Courier Prime', monospace; font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-top: 1px; }
+    .trip-remove { background: none; border: none; color: var(--muted); font-size: 14px; cursor: pointer; }
     .trip-remove:hover { color: #8B1A1A; }
-    .trip-empty { font-family: 'Courier Prime', monospace; font-size: 11px; color: rgba(26,39,68,.3); letter-spacing: 1px; text-align: center; padding: 20px 0; }
+    .trip-empty { font-family: 'Courier Prime', monospace; font-size: 11px; color: rgba(26,39,68,.3); letter-spacing: 1px; text-align: center; padding: 18px 0; }
 
-    .page-footer { text-align: center; border-top: 1px solid #D4B896; margin-top: 60px; padding: 28px 24px; font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: #B0906A; }
+    /* ═══ TOAST ═══ */
+    .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1A2744; border: 1.5px solid var(--gold); color: #F0E3C5; font-family: 'Courier Prime', monospace; font-size: 12px; letter-spacing: 2px; padding: 12px 24px; z-index: 800; transition: transform .3s ease; white-space: nowrap; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ═══ FOOTER ═══ */
+    .page-footer { text-align: center; border-top: 1px solid var(--border); margin-top: 60px; padding: 28px 24px; font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); }
+
+    /* ═══ PRINT ═══ */
+    @media print {
+      #introScreen, .hero, #stateArea, .cat-filter, .results-toolbar, .card-actions, .day-picker, .trip-toolbar, .print-btn, .city-banner-weather { display: none !important; }
+      body { background: white; color: black; }
+      .trip-day { border: 1px solid #ccc; break-inside: avoid; }
+    }
 
     @media (max-width: 700px) {
       .hero { padding: 30px 16px 38px; }
       .cards-grid { grid-template-columns: 1fr; }
+      .cards-grid.list-view .card { flex-direction: column; }
+      .cards-grid.list-view .card-img-wrap { width: 100%; height: 180px; }
       .trip-grid { grid-template-columns: 1fr; }
       #map { height: 240px; }
-      .tab-btn { font-size: 10px; padding: 8px 12px; }
-      .info-bar { grid-template-columns: repeat(2, 1fr); }
+      .tab-btn { font-size: 10px; padding: 8px 10px; }
+      .city-banner { padding: 20px 18px 16px; }
+      .city-banner-temp { font-size: 36px; }
     }
   </style>
 </head>
 <body>
 
-  <header class="hero">
-    <p class="hero-badge">+ THE TRAVELER'S COMPANION +</p>
-    <h1 class="hero-title">Hidden <em>Gems</em></h1>
-    <p class="hero-tagline">- discover what the guidebooks miss -</p>
-
-    <div class="picker-wrap">
-      <div class="picker-top-row">
-        <div class="tab-row">
-          <button class="tab-btn active" data-tab="map">MAP</button>
-          <button class="tab-btn" data-tab="browse">BROWSE</button>
-          <button class="tab-btn" data-tab="type">TYPE</button>
-        </div>
-        <button class="surprise-btn" id="surpriseBtn">SURPRISE ME</button>
-      </div>
-
-      <div class="tab-panel active" id="tab-map">
-        <div id="map"></div>
-        <p class="map-hint">Click anywhere on the map to drop a pin and detect the city</p>
-        <p class="map-selected" id="mapSelected"></p>
-      </div>
-
-      <div class="tab-panel" id="tab-browse">
-        <div class="browse-panel">
-          <input type="text" class="country-search" id="countrySearch" placeholder="Search countries or cities..."/>
-          <div class="countries-list" id="countriesList"></div>
-        </div>
-      </div>
-
-      <div class="tab-panel" id="tab-type">
-        <div class="type-panel">
-          <input type="text" id="cityTypeInput" class="city-type-input" placeholder="Enter any city in the world..." autocomplete="off"/>
-        </div>
-      </div>
-
-      <div class="vibes-go-wrap">
-        <div class="vibes-row" id="vibesRow"></div>
-        <button class="go-btn" id="exploreBtn">EXPLORE</button>
-      </div>
+<!-- ═══ INTRO SCREEN ═══ -->
+<div id="introScreen">
+  <div id="introMap"></div>
+  <div class="intro-vignette"></div>
+  <div class="intro-content">
+    <div class="intro-badge">+ The Traveler's Companion +</div>
+    <h1 class="intro-title">Hidden <em>Gems</em></h1>
+    <p class="intro-tagline">— uncover what the guidebooks miss —</p>
+    <div class="intro-pills">
+      <span class="intro-pill">50+ Countries</span>
+      <span class="intro-pill">AI-Powered</span>
+      <span class="intro-pill">Always Free</span>
+      <span class="intro-pill">Real Local Spots</span>
     </div>
-  </header>
+    <button class="intro-btn" id="introBtn">BEGIN EXPLORING →</button>
+  </div>
+</div>
 
-  <main class="main-body">
-    <div id="stateArea">
-      <div class="state-box">
-        <span class="state-icon" id="stateIcon">🗺️</span>
-        <div class="state-title" id="stateTitle">Where shall we explore?</div>
-        <div class="state-sub" id="stateSub">Pick a city from the map, browse the list, or just type one.</div>
-        <div class="error-box hidden" id="errorBox">
-          <strong>Error:</strong><span id="errorText"></span>
-        </div>
+<!-- ═══ HERO ═══ -->
+<header class="hero">
+  <div class="hero-top-bar">
+    <button class="icon-btn" id="darkModeBtn" title="Toggle dark mode">☾</button>
+  </div>
+  <p class="hero-badge">+ THE TRAVELER'S COMPANION +</p>
+  <h1 class="hero-title">Hidden <em>Gems</em></h1>
+  <p class="hero-tagline">— discover what the guidebooks miss —</p>
+
+  <div class="history-wrap hidden" id="historyWrap">
+    <div class="history-label">Recent Searches</div>
+    <div class="history-chips" id="historyChips"></div>
+  </div>
+
+  <div class="picker-wrap">
+    <div class="picker-top-row">
+      <div class="tab-row">
+        <button class="tab-btn active" data-tab="map">MAP</button>
+        <button class="tab-btn" data-tab="browse">BROWSE</button>
+        <button class="tab-btn" data-tab="type">TYPE</button>
       </div>
+      <button class="surprise-btn" id="surpriseBtn">SURPRISE ME</button>
     </div>
 
-    <div id="resultsArea" class="hidden">
-      <div class="info-bar">
-        <div class="info-item">
-          <div class="info-label">City</div>
-          <div class="info-value" id="infoCityName"></div>
-          <div class="info-sub" id="infoVibe"></div>
+    <div class="tab-panel active" id="tab-map">
+      <div id="map"></div>
+      <p class="map-hint">Click anywhere on the map to drop a pin and auto-detect the city</p>
+      <p class="map-selected" id="mapSelected"></p>
+    </div>
+    <div class="tab-panel" id="tab-browse">
+      <div class="browse-panel">
+        <input type="text" class="country-search" id="countrySearch" placeholder="Search countries or cities..."/>
+        <div class="countries-list" id="countriesList"></div>
+      </div>
+    </div>
+    <div class="tab-panel" id="tab-type">
+      <div class="type-panel">
+        <input type="text" id="cityTypeInput" class="city-type-input" placeholder="Enter any city in the world..." autocomplete="off"/>
+      </div>
+    </div>
+
+    <div class="vibes-go-wrap">
+      <div class="vibes-row" id="vibesRow"></div>
+      <button class="go-btn" id="exploreBtn">EXPLORE</button>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main-body">
+
+  <div id="stateArea">
+    <div class="state-box">
+      <span class="state-icon" id="stateIcon">🗺️</span>
+      <div class="state-title" id="stateTitle">Where shall we explore?</div>
+      <div class="state-sub" id="stateSub">Pick a city from the map, browse the list, or just type one.</div>
+      <div class="error-box hidden" id="errorBox"><strong>Error:</strong><span id="errorText"></span></div>
+    </div>
+  </div>
+
+  <div id="resultsArea" class="hidden">
+
+    <!-- BIG CITY BANNER -->
+    <div class="city-banner" id="cityBanner">
+      <div class="city-banner-top">
+        <div>
+          <div class="city-banner-name"><em id="bannerCity"></em></div>
+          <div class="city-banner-vibe" id="bannerVibe"></div>
         </div>
-        <div class="info-item">
-          <div class="info-label">Weather Right Now</div>
-          <div class="info-value" id="infoWeather">Loading...</div>
-          <div class="info-sub" id="infoWeatherSub"></div>
-        </div>
-        <div class="info-item">
-          <div class="info-label">Best Time to Visit</div>
-          <div class="info-value" id="infoBestTime" style="font-size:13px;line-height:1.4;"></div>
-        </div>
-        <div class="info-item">
-          <div class="info-label">Currency</div>
-          <div class="info-value" id="infoCurrency">Loading...</div>
-          <div class="info-sub" id="infoCurrencySub"></div>
+        <div class="city-banner-weather">
+          <div class="city-banner-temp" id="bannerTemp">--</div>
+          <div class="city-banner-cond" id="bannerCond"></div>
         </div>
       </div>
+      <div class="city-banner-divider"></div>
+      <div class="city-stats-row">
+        <div class="city-stat">
+          <div class="city-stat-label">Local Time</div>
+          <div class="city-stat-value" id="statLocalTime">--</div>
+          <div class="city-stat-sub" id="statTimezone"></div>
+        </div>
+        <div class="city-stat">
+          <div class="city-stat-label">Best Time to Visit</div>
+          <div class="city-stat-value" id="statBestTime" style="font-size:14px;line-height:1.3;"></div>
+        </div>
+        <div class="city-stat">
+          <div class="city-stat-label">Currency</div>
+          <div class="city-stat-value" id="statCurrency">--</div>
+          <div class="city-stat-sub" id="statCurrencySub"></div>
+        </div>
+        <div class="city-stat">
+          <div class="city-stat-label">Est. Daily Budget</div>
+          <div class="city-stat-value" id="statBudget">--</div>
+          <div class="city-stat-sub">based on selected spots</div>
+        </div>
+        <div class="city-stat">
+          <div class="city-stat-label">Safety</div>
+          <div class="city-stat-value" id="statSafety" style="font-size:14px;line-height:1.3;">--</div>
+        </div>
+        <div class="city-stat">
+          <div class="city-stat-label">Distance From You</div>
+          <div class="city-stat-value" id="statDistance">--</div>
+          <div class="city-stat-sub" id="statDistanceSub"></div>
+        </div>
+      </div>
+    </div>
 
+    <!-- GEMS SECTION -->
+    <div class="section-header">
       <div class="section-rule">+</div>
       <h2 class="section-heading">Your curated guide to <em id="cityLabel"></em></h2>
       <p class="section-sub" id="vibeLabel"></p>
-      <div class="cards-grid" id="cardsGrid"></div>
+    </div>
 
-      <div class="bookmarks-section hidden" id="bookmarksSection">
-        <div class="section-rule">+</div>
-        <h2 class="section-heading" style="font-size:26px;">Saved <em>Places</em></h2>
-        <div class="bookmarks-grid" id="bookmarksGrid"></div>
-      </div>
+    <!-- CATEGORY FILTER -->
+    <div class="cat-filter" id="catFilter">
+      <button class="cat-btn active" data-cat="ALL">ALL</button>
+      <button class="cat-btn" data-cat="Food">FOOD</button>
+      <button class="cat-btn" data-cat="Explore">EXPLORE</button>
+      <button class="cat-btn" data-cat="Nightlife">NIGHTLIFE</button>
+      <button class="cat-btn" data-cat="Nature">NATURE</button>
+      <button class="cat-btn" data-cat="Culture">CULTURE</button>
+      <button class="cat-btn" data-cat="Shop">SHOP</button>
+    </div>
 
-      <div class="trip-section hidden" id="tripSection">
-        <div class="section-rule">+</div>
-        <h2 class="section-heading" style="font-size:26px;">Your <em>Itinerary</em></h2>
-        <p class="section-sub">Add spots to your day-by-day trip plan</p>
-        <div class="trip-grid" id="tripGrid"></div>
+    <!-- TOOLBAR -->
+    <div class="results-toolbar">
+      <div class="results-count" id="resultsCount"></div>
+      <div class="toolbar-right">
+        <button class="share-all-btn" id="shareAllBtn">SHARE GUIDE</button>
+        <button class="view-btn active" id="viewGrid">GRID</button>
+        <button class="view-btn" id="viewList">LIST</button>
       </div>
     </div>
 
-    <footer class="page-footer">HIDDEN GEMS . EVERY CITY HAS A STORY . EST. 2025</footer>
-  </main>
+    <div class="cards-grid" id="cardsGrid"></div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    var API_BASE = "/api/proxy";
+    <!-- LOCAL PHRASES -->
+    <div id="phrasesSection" class="hidden">
+      <div class="section-rule" style="margin-top:48px;">+</div>
+      <h2 class="section-heading" style="font-size:26px;">Useful <em>Phrases</em></h2>
+      <p class="section-sub">Say it like a local</p>
+      <div class="phrases-grid" id="phrasesGrid"></div>
+    </div>
 
-    var VIBES = ["Chill","Adventurous","Budget","Fancy","Local","Romantic"];
+    <!-- NEARBY CITIES -->
+    <div id="nearbySection" class="hidden">
+      <div class="section-rule" style="margin-top:48px;">+</div>
+      <h2 class="section-heading" style="font-size:26px;">Also <em>Explore</em></h2>
+      <p class="section-sub">Nearby cities worth discovering</p>
+      <div class="nearby-chips" id="nearbyChips"></div>
+    </div>
 
-    var WEATHER_CODES = {
-      0:"Clear sky",1:"Mostly clear",2:"Partly cloudy",3:"Overcast",
-      45:"Foggy",48:"Icy fog",51:"Light drizzle",53:"Drizzle",55:"Heavy drizzle",
-      61:"Light rain",63:"Rain",65:"Heavy rain",71:"Light snow",73:"Snow",75:"Heavy snow",
-      80:"Rain showers",81:"Heavy showers",82:"Violent showers",95:"Thunderstorm",99:"Thunderstorm + hail"
-    };
+    <!-- BOOKMARKS -->
+    <div id="bookmarksSection" class="hidden">
+      <div class="section-rule" style="margin-top:48px;">+</div>
+      <h2 class="section-heading" style="font-size:26px;">Saved <em>Places</em></h2>
+      <div class="bookmarks-grid" id="bookmarksGrid"></div>
+    </div>
 
-    var CITIES = {
-      "USA":["New York City","Los Angeles","Chicago","Miami","Las Vegas","San Francisco","New Orleans","Seattle","Atlanta","Boston","Nashville","Austin","Denver","Portland","Washington DC","Phoenix"],
-      "UK":["London","Manchester","Edinburgh","Liverpool","Bristol","Birmingham","Glasgow","Bath","Oxford"],
-      "France":["Paris","Lyon","Marseille","Nice","Bordeaux","Strasbourg","Toulouse"],
-      "Italy":["Rome","Milan","Florence","Venice","Naples","Bologna","Palermo","Turin"],
-      "Spain":["Barcelona","Madrid","Seville","Valencia","Granada","Bilbao","Malaga"],
-      "Germany":["Berlin","Munich","Hamburg","Cologne","Frankfurt","Dresden","Stuttgart"],
-      "Japan":["Tokyo","Osaka","Kyoto","Hiroshima","Sapporo","Fukuoka","Nara","Nagoya"],
-      "South Korea":["Seoul","Busan","Jeju","Incheon","Daegu"],
-      "China":["Shanghai","Beijing","Hong Kong","Chengdu","Guangzhou","Xian","Shenzhen"],
-      "Thailand":["Bangkok","Chiang Mai","Phuket","Koh Samui","Pai","Chiang Rai"],
-      "Vietnam":["Ho Chi Minh City","Hanoi","Hoi An","Da Nang","Hue","Nha Trang"],
-      "Australia":["Sydney","Melbourne","Brisbane","Perth","Adelaide","Cairns","Gold Coast"],
-      "New Zealand":["Auckland","Wellington","Queenstown","Christchurch","Rotorua"],
-      "Canada":["Toronto","Vancouver","Montreal","Calgary","Quebec City","Ottawa","Halifax"],
-      "Mexico":["Mexico City","Cancun","Guadalajara","Oaxaca","Tulum","San Miguel de Allende","Merida"],
-      "Brazil":["Rio de Janeiro","Sao Paulo","Salvador","Florianopolis","Recife","Fortaleza"],
-      "Argentina":["Buenos Aires","Mendoza","Bariloche","Cordoba","Salta"],
-      "South Africa":["Cape Town","Johannesburg","Durban","Stellenbosch"],
-      "Morocco":["Marrakech","Fes","Casablanca","Chefchaouen","Tangier","Essaouira"],
-      "India":["Mumbai","Delhi","Jaipur","Goa","Bengaluru","Varanasi","Udaipur","Kolkata"],
-      "UAE":["Dubai","Abu Dhabi"],
-      "Singapore":["Singapore"],
-      "Indonesia":["Bali","Jakarta","Yogyakarta","Lombok"],
-      "Portugal":["Lisbon","Porto","Algarve","Sintra","Madeira"],
-      "Greece":["Athens","Santorini","Mykonos","Thessaloniki","Crete","Rhodes"],
-      "Turkey":["Istanbul","Cappadocia","Antalya","Bodrum","Izmir"],
-      "Netherlands":["Amsterdam","Rotterdam","Utrecht","The Hague"],
-      "Switzerland":["Zurich","Geneva","Interlaken","Lucerne","Zermatt"],
-      "Austria":["Vienna","Salzburg","Innsbruck","Hallstatt"],
-      "Poland":["Warsaw","Krakow","Gdansk","Wroclaw"],
-      "Czech Republic":["Prague","Brno","Cesky Krumlov"],
-      "Hungary":["Budapest","Pecs","Debrecen"],
-      "Norway":["Oslo","Bergen","Tromso","Flam"],
-      "Sweden":["Stockholm","Gothenburg","Malmo"],
-      "Iceland":["Reykjavik","Akureyri"],
-      "Peru":["Lima","Cusco","Arequipa"],
-      "Colombia":["Medellin","Bogota","Cartagena","Cali"],
-      "Philippines":["Manila","Cebu","Palawan","Boracay"],
-      "Malaysia":["Kuala Lumpur","Penang","Langkawi","Kota Kinabalu"],
-      "Nepal":["Kathmandu","Pokhara"],
-      "Jamaica":["Kingston","Montego Bay","Negril"],
-      "Cuba":["Havana","Trinidad","Varadero"],
-      "Egypt":["Cairo","Alexandria","Luxor","Aswan"],
-      "Kenya":["Nairobi","Mombasa"],
-      "Tanzania":["Dar es Salaam","Zanzibar","Arusha"]
-    };
+    <!-- TRIP PLANNER -->
+    <div id="tripSection" class="hidden">
+      <div class="section-rule" style="margin-top:48px;">+</div>
+      <h2 class="section-heading" style="font-size:26px;">Your <em>Itinerary</em></h2>
+      <p class="section-sub">Day-by-day trip plan</p>
+      <div class="trip-toolbar">
+        <button class="print-btn" id="printBtn">PRINT ITINERARY</button>
+      </div>
+      <div class="trip-grid" id="tripGrid"></div>
+    </div>
 
-    var CAT_COLORS = {
-      Food:"#8B1A1A",Explore:"#1A3A4A",Nightlife:"#2A1A4A",
-      Nature:"#1A3A1A",Culture:"#4A2A1A",Shop:"#3A1A3A"
-    };
+  </div>
 
-    var selectedVibe = "Chill";
-    var selectedCity = "";
-    var activeTab    = "map";
-    var mapMarker    = null;
-    var bookmarks    = JSON.parse(localStorage.getItem("hg_bookmarks") || "[]");
-    var tripDays     = JSON.parse(localStorage.getItem("hg_trip") || '{"1":[],"2":[],"3":[]}');
+  <footer class="page-footer">HIDDEN GEMS . EVERY CITY HAS A STORY . EST. 2025</footer>
+</main>
 
-    var exploreBtn     = document.getElementById("exploreBtn");
-    var surpriseBtn    = document.getElementById("surpriseBtn");
-    var vibesRow       = document.getElementById("vibesRow");
-    var stateArea      = document.getElementById("stateArea");
-    var resultsArea    = document.getElementById("resultsArea");
-    var cardsGrid      = document.getElementById("cardsGrid");
-    var cityLabel      = document.getElementById("cityLabel");
-    var vibeLabel      = document.getElementById("vibeLabel");
-    var stateIcon      = document.getElementById("stateIcon");
-    var stateTitle     = document.getElementById("stateTitle");
-    var stateSub       = document.getElementById("stateSub");
-    var errorBox       = document.getElementById("errorBox");
-    var errorText      = document.getElementById("errorText");
-    var mapSelected    = document.getElementById("mapSelected");
-    var countrySearch  = document.getElementById("countrySearch");
-    var countriesList  = document.getElementById("countriesList");
-    var cityTypeInput  = document.getElementById("cityTypeInput");
-    var infoCityName   = document.getElementById("infoCityName");
-    var infoVibe       = document.getElementById("infoVibe");
-    var infoWeather    = document.getElementById("infoWeather");
-    var infoWeatherSub = document.getElementById("infoWeatherSub");
-    var infoBestTime   = document.getElementById("infoBestTime");
-    var infoCurrency   = document.getElementById("infoCurrency");
-    var infoCurrencySub= document.getElementById("infoCurrencySub");
-    var bookmarksSection = document.getElementById("bookmarksSection");
-    var bookmarksGrid  = document.getElementById("bookmarksGrid");
-    var tripSection    = document.getElementById("tripSection");
-    var tripGrid       = document.getElementById("tripGrid");
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
-    /* TABS */
-    document.querySelectorAll(".tab-btn").forEach(function(btn) {
-      btn.addEventListener("click", function() {
-        activeTab = btn.dataset.tab;
-        document.querySelectorAll(".tab-btn").forEach(function(b){ b.classList.remove("active"); });
-        document.querySelectorAll(".tab-panel").forEach(function(p){ p.classList.remove("active"); });
-        btn.classList.add("active");
-        document.getElementById("tab-" + activeTab).classList.add("active");
-        if (activeTab === "map") setTimeout(function(){ leafletMap.invalidateSize(); }, 100);
-      });
-    });
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  /* ════════════════════════════════════════════
+     CONFIG
+  ════════════════════════════════════════════ */
+  var API_BASE = "/api/proxy";
+  var VIBES = ["Chill","Adventurous","Budget","Fancy","Local","Romantic"];
+  var WEATHER_CODES = {0:"Clear sky",1:"Mostly clear",2:"Partly cloudy",3:"Overcast",45:"Foggy",48:"Icy fog",51:"Light drizzle",53:"Drizzle",55:"Heavy drizzle",61:"Light rain",63:"Rain",65:"Heavy rain",71:"Light snow",73:"Snow",75:"Heavy snow",80:"Rain showers",81:"Heavy showers",82:"Violent showers",95:"Thunderstorm",99:"Thunderstorm + hail"};
+  var CAT_COLORS = {Food:"#8B1A1A",Explore:"#1A3A4A",Nightlife:"#2A1A4A",Nature:"#1A3A1A",Culture:"#4A2A1A",Shop:"#3A1A3A"};
+  var CITIES = {
+    "USA":["New York City","Los Angeles","Chicago","Miami","Las Vegas","San Francisco","New Orleans","Seattle","Atlanta","Boston","Nashville","Austin","Denver","Portland","Washington DC","Phoenix","New Orleans","Savannah"],
+    "UK":["London","Manchester","Edinburgh","Liverpool","Bristol","Birmingham","Glasgow","Bath","Oxford","Brighton"],
+    "France":["Paris","Lyon","Marseille","Nice","Bordeaux","Strasbourg","Toulouse","Montpellier"],
+    "Italy":["Rome","Milan","Florence","Venice","Naples","Bologna","Palermo","Turin","Amalfi"],
+    "Spain":["Barcelona","Madrid","Seville","Valencia","Granada","Bilbao","Malaga","San Sebastian"],
+    "Germany":["Berlin","Munich","Hamburg","Cologne","Frankfurt","Dresden","Stuttgart","Leipzig"],
+    "Japan":["Tokyo","Osaka","Kyoto","Hiroshima","Sapporo","Fukuoka","Nara","Nagoya","Kanazawa"],
+    "South Korea":["Seoul","Busan","Jeju","Incheon","Daegu","Gyeongju"],
+    "China":["Shanghai","Beijing","Hong Kong","Chengdu","Guangzhou","Xian","Shenzhen","Guilin"],
+    "Thailand":["Bangkok","Chiang Mai","Phuket","Koh Samui","Pai","Chiang Rai","Hua Hin"],
+    "Vietnam":["Ho Chi Minh City","Hanoi","Hoi An","Da Nang","Hue","Nha Trang","Phu Quoc"],
+    "Australia":["Sydney","Melbourne","Brisbane","Perth","Adelaide","Cairns","Gold Coast","Hobart"],
+    "New Zealand":["Auckland","Wellington","Queenstown","Christchurch","Rotorua","Dunedin"],
+    "Canada":["Toronto","Vancouver","Montreal","Calgary","Quebec City","Ottawa","Halifax","Victoria"],
+    "Mexico":["Mexico City","Cancun","Guadalajara","Oaxaca","Tulum","San Miguel de Allende","Merida","Puerto Vallarta"],
+    "Brazil":["Rio de Janeiro","Sao Paulo","Salvador","Florianopolis","Recife","Fortaleza","Curitiba"],
+    "Argentina":["Buenos Aires","Mendoza","Bariloche","Cordoba","Salta","Ushuaia"],
+    "South Africa":["Cape Town","Johannesburg","Durban","Stellenbosch","Knysna"],
+    "Morocco":["Marrakech","Fes","Casablanca","Chefchaouen","Tangier","Essaouira","Agadir"],
+    "India":["Mumbai","Delhi","Jaipur","Goa","Bengaluru","Varanasi","Udaipur","Kolkata","Rishikesh"],
+    "UAE":["Dubai","Abu Dhabi"],
+    "Singapore":["Singapore"],
+    "Indonesia":["Bali","Jakarta","Yogyakarta","Lombok","Komodo","Ubud"],
+    "Portugal":["Lisbon","Porto","Algarve","Sintra","Madeira","Azores"],
+    "Greece":["Athens","Santorini","Mykonos","Thessaloniki","Crete","Rhodes","Corfu"],
+    "Turkey":["Istanbul","Cappadocia","Antalya","Bodrum","Izmir","Ephesus"],
+    "Netherlands":["Amsterdam","Rotterdam","Utrecht","The Hague","Haarlem"],
+    "Switzerland":["Zurich","Geneva","Interlaken","Lucerne","Zermatt","Basel"],
+    "Austria":["Vienna","Salzburg","Innsbruck","Hallstatt","Graz"],
+    "Poland":["Warsaw","Krakow","Gdansk","Wroclaw","Poznan"],
+    "Czech Republic":["Prague","Brno","Cesky Krumlov","Olomouc"],
+    "Hungary":["Budapest","Pecs","Debrecen","Eger"],
+    "Norway":["Oslo","Bergen","Tromso","Flam","Alesund"],
+    "Sweden":["Stockholm","Gothenburg","Malmo","Uppsala"],
+    "Denmark":["Copenhagen","Aarhus","Odense"],
+    "Iceland":["Reykjavik","Akureyri","Vik","Hofn"],
+    "Peru":["Lima","Cusco","Arequipa","Machu Picchu","Puno"],
+    "Colombia":["Medellin","Bogota","Cartagena","Cali","Santa Marta"],
+    "Philippines":["Manila","Cebu","Palawan","Boracay","Siargao"],
+    "Malaysia":["Kuala Lumpur","Penang","Langkawi","Kota Kinabalu","Melaka"],
+    "Nepal":["Kathmandu","Pokhara","Chitwan"],
+    "Jamaica":["Kingston","Montego Bay","Negril","Ocho Rios"],
+    "Cuba":["Havana","Trinidad","Varadero","Santiago de Cuba"],
+    "Egypt":["Cairo","Alexandria","Luxor","Aswan","Hurghada"],
+    "Kenya":["Nairobi","Mombasa","Maasai Mara"],
+    "Tanzania":["Dar es Salaam","Zanzibar","Arusha","Serengeti"],
+    "Israel":["Tel Aviv","Jerusalem","Haifa","Eilat"],
+    "Chile":["Santiago","Valparaiso","San Pedro de Atacama","Patagonia"],
+    "Ecuador":["Quito","Guayaquil","Cuenca","Galapagos"]
+  };
 
-    /* MAP — Esri dark tiles with English labels */
-    var leafletMap = L.map("map", { zoomControl: true }).setView([20, 10], 2);
+  /* ════════════════════════════════════════════
+     STATE
+  ════════════════════════════════════════════ */
+  var selectedVibe = "Chill";
+  var selectedCity = "";
+  var activeTab    = "map";
+  var mapMarker    = null;
+  var currentSpots = [];
+  var currentCity  = "";
+  var searchHistory= JSON.parse(localStorage.getItem("hg_history") || "[]");
+  var bookmarks    = JSON.parse(localStorage.getItem("hg_bookmarks") || "[]");
+  var tripDays     = JSON.parse(localStorage.getItem("hg_trip") || '{"1":[],"2":[],"3":[]}');
+  var isDark       = localStorage.getItem("hg_dark") === "true";
+  var userCoords   = null;
 
-    // Base dark layer (no labels)
-    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
-      attribution: "Esri, HERE, Garmin", maxZoom: 16
-    }).addTo(leafletMap);
+  /* ════════════════════════════════════════════
+     DOM REFS
+  ════════════════════════════════════════════ */
+  var exploreBtn     = document.getElementById("exploreBtn");
+  var surpriseBtn    = document.getElementById("surpriseBtn");
+  var darkModeBtn    = document.getElementById("darkModeBtn");
+  var vibesRow       = document.getElementById("vibesRow");
+  var stateArea      = document.getElementById("stateArea");
+  var resultsArea    = document.getElementById("resultsArea");
+  var cardsGrid      = document.getElementById("cardsGrid");
+  var cityLabel      = document.getElementById("cityLabel");
+  var vibeLabel      = document.getElementById("vibeLabel");
+  var stateIcon      = document.getElementById("stateIcon");
+  var stateTitle     = document.getElementById("stateTitle");
+  var stateSub       = document.getElementById("stateSub");
+  var errorBox       = document.getElementById("errorBox");
+  var errorText      = document.getElementById("errorText");
+  var mapSelected    = document.getElementById("mapSelected");
+  var countrySearch  = document.getElementById("countrySearch");
+  var countriesList  = document.getElementById("countriesList");
+  var cityTypeInput  = document.getElementById("cityTypeInput");
+  var historyWrap    = document.getElementById("historyWrap");
+  var historyChips   = document.getElementById("historyChips");
+  var bannerCity     = document.getElementById("bannerCity");
+  var bannerVibe     = document.getElementById("bannerVibe");
+  var bannerTemp     = document.getElementById("bannerTemp");
+  var bannerCond     = document.getElementById("bannerCond");
+  var statLocalTime  = document.getElementById("statLocalTime");
+  var statTimezone   = document.getElementById("statTimezone");
+  var statBestTime   = document.getElementById("statBestTime");
+  var statCurrency   = document.getElementById("statCurrency");
+  var statCurrencySub= document.getElementById("statCurrencySub");
+  var statBudget     = document.getElementById("statBudget");
+  var statSafety     = document.getElementById("statSafety");
+  var statDistance   = document.getElementById("statDistance");
+  var statDistanceSub= document.getElementById("statDistanceSub");
+  var resultsCount   = document.getElementById("resultsCount");
+  var phrasesSection = document.getElementById("phrasesSection");
+  var phrasesGrid    = document.getElementById("phrasesGrid");
+  var nearbySection  = document.getElementById("nearbySection");
+  var nearbyChips    = document.getElementById("nearbyChips");
+  var bookmarksSection=document.getElementById("bookmarksSection");
+  var bookmarksGrid  = document.getElementById("bookmarksGrid");
+  var tripSection    = document.getElementById("tripSection");
+  var tripGrid       = document.getElementById("tripGrid");
+  var toast          = document.getElementById("toast");
+  var shareAllBtn    = document.getElementById("shareAllBtn");
+  var printBtn       = document.getElementById("printBtn");
+  var viewGrid       = document.getElementById("viewGrid");
+  var viewList       = document.getElementById("viewList");
 
-    // English label overlay on top
-    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}", {
-      attribution: "", maxZoom: 16, opacity: 1
-    }).addTo(leafletMap);
+  /* ════════════════════════════════════════════
+     INTRO
+  ════════════════════════════════════════════ */
+  var introMapInst = L.map("introMap", { zoomControl:false, scrollWheelZoom:false, dragging:false, touchZoom:false, doubleClickZoom:false, attributionControl:false, keyboard:false }).setView([20,10],2);
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", { maxZoom:4 }).addTo(introMapInst);
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}", { maxZoom:4 }).addTo(introMapInst);
 
-    leafletMap.on("click", async function(e) {
-      if (mapMarker) leafletMap.removeLayer(mapMarker);
-      mapMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(leafletMap);
-      mapSelected.textContent = "Locating city...";
-      try {
-        var res = await fetch("https://nominatim.openstreetmap.org/reverse?lat=" + e.latlng.lat + "&lon=" + e.latlng.lng + "&format=json&zoom=10", { headers: { "Accept-Language": "en" } });
-        var data = await res.json();
-        var a = data.address || {};
-        var city = a.city || a.town || a.village || a.county || a.state || data.display_name.split(",")[0];
-        selectedCity = city + (a.country ? ", " + a.country : "");
-        mapSelected.textContent = "Selected: " + selectedCity;
-        document.querySelectorAll(".city-chip").forEach(function(c){ c.classList.remove("selected"); });
-      } catch(e) { mapSelected.textContent = "Could not detect city. Try again."; }
-    });
+  var panAngle = 0;
+  var introPanInterval = setInterval(function() {
+    panAngle += 0.3;
+    introMapInst.panBy([Math.cos(panAngle)*1.5, Math.sin(panAngle)*0.5], { animate:true, duration:2.5 });
+  }, 2500);
 
-    /* BROWSE */
-    function buildBrowse(filter) {
-      countriesList.innerHTML = "";
-      var f = (filter || "").toLowerCase();
-      Object.keys(CITIES).forEach(function(country) {
-        var cities = CITIES[country].filter(function(c){ return !f || c.toLowerCase().includes(f) || country.toLowerCase().includes(f); });
-        if (!cities.length) return;
-        var block = document.createElement("div"); block.className = "country-block";
-        var lbl = document.createElement("div"); lbl.className = "country-label"; lbl.textContent = country;
-        block.appendChild(lbl);
-        var chips = document.createElement("div"); chips.className = "city-chips";
-        cities.forEach(function(city) {
-          var chip = document.createElement("button"); chip.className = "city-chip"; chip.textContent = city;
-          chip.addEventListener("click", function() {
-            document.querySelectorAll(".city-chip").forEach(function(c){ c.classList.remove("selected"); });
-            chip.classList.add("selected"); selectedCity = city;
-          });
-          chips.appendChild(chip);
-        });
-        block.appendChild(chips); countriesList.appendChild(block);
-      });
-    }
-    buildBrowse();
-    countrySearch.addEventListener("input", function(){ buildBrowse(countrySearch.value); });
+  document.getElementById("introBtn").addEventListener("click", function() {
+    clearInterval(introPanInterval);
+    var screen = document.getElementById("introScreen");
+    screen.classList.add("fade-out");
+    setTimeout(function(){ screen.style.display="none"; }, 1200);
+  });
 
-    /* VIBES */
-    function buildVibes() {
-      vibesRow.innerHTML = "";
-      VIBES.forEach(function(v) {
-        var btn = document.createElement("button");
-        btn.className = "vibe-btn" + (v === selectedVibe ? " active" : "");
-        btn.textContent = v;
-        btn.addEventListener("click", function() {
-          selectedVibe = v;
-          document.querySelectorAll(".vibe-btn").forEach(function(b){ b.classList.toggle("active", b.textContent === v); });
-        });
-        vibesRow.appendChild(btn);
-      });
-    }
+  /* ════════════════════════════════════════════
+     DARK MODE
+  ════════════════════════════════════════════ */
+  if (isDark) document.body.classList.add("dark");
+  darkModeBtn.addEventListener("click", function() {
+    isDark = !isDark;
+    document.body.classList.toggle("dark", isDark);
+    localStorage.setItem("hg_dark", isDark);
+    darkModeBtn.textContent = isDark ? "☀" : "☾";
+  });
+  if (isDark) darkModeBtn.textContent = "☀";
 
-    /* SURPRISE ME */
-    surpriseBtn.addEventListener("click", function() {
-      var countries = Object.keys(CITIES);
-      var country = countries[Math.floor(Math.random() * countries.length)];
-      var cities = CITIES[country];
-      var city = cities[Math.floor(Math.random() * cities.length)];
-      selectedCity = city;
-      activeTab = "type";
-      document.querySelectorAll(".tab-btn").forEach(function(b){ b.classList.toggle("active", b.dataset.tab === "type"); });
+  /* ════════════════════════════════════════════
+     TABS
+  ════════════════════════════════════════════ */
+  document.querySelectorAll(".tab-btn").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      activeTab = btn.dataset.tab;
+      document.querySelectorAll(".tab-btn").forEach(function(b){ b.classList.remove("active"); });
       document.querySelectorAll(".tab-panel").forEach(function(p){ p.classList.remove("active"); });
-      document.getElementById("tab-type").classList.add("active");
-      cityTypeInput.value = city;
-      fetchGems(city);
+      btn.classList.add("active");
+      document.getElementById("tab-"+activeTab).classList.add("active");
+      if (activeTab==="map") setTimeout(function(){ leafletMap.invalidateSize(); },100);
+    });
+  });
+
+  /* ════════════════════════════════════════════
+     MAIN MAP
+  ════════════════════════════════════════════ */
+  var leafletMap = L.map("map",{zoomControl:true}).setView([20,10],2);
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",{attribution:"Esri",maxZoom:16}).addTo(leafletMap);
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",{maxZoom:16}).addTo(leafletMap);
+
+  leafletMap.on("click", async function(e) {
+    if (mapMarker) leafletMap.removeLayer(mapMarker);
+    mapMarker = L.marker([e.latlng.lat,e.latlng.lng]).addTo(leafletMap);
+    mapSelected.textContent = "Locating city...";
+    try {
+      var res = await fetch("https://nominatim.openstreetmap.org/reverse?lat="+e.latlng.lat+"&lon="+e.latlng.lng+"&format=json&zoom=10",{headers:{"Accept-Language":"en"}});
+      var data = await res.json();
+      var a = data.address||{};
+      var city = a.city||a.town||a.village||a.county||a.state||data.display_name.split(",")[0];
+      selectedCity = city+(a.country?", "+a.country:"");
+      mapSelected.textContent = "Selected: "+selectedCity;
+      document.querySelectorAll(".city-chip").forEach(function(c){c.classList.remove("selected");});
+    } catch(e){ mapSelected.textContent="Could not detect city. Try again."; }
+  });
+
+  /* ════════════════════════════════════════════
+     BROWSE
+  ════════════════════════════════════════════ */
+  function buildBrowse(filter) {
+    countriesList.innerHTML="";
+    var f=(filter||"").toLowerCase();
+    Object.keys(CITIES).forEach(function(country) {
+      var cities=CITIES[country].filter(function(c){return !f||c.toLowerCase().includes(f)||country.toLowerCase().includes(f);});
+      if(!cities.length)return;
+      var block=document.createElement("div");block.className="country-block";
+      var lbl=document.createElement("div");lbl.className="country-label";lbl.textContent=country;block.appendChild(lbl);
+      var chips=document.createElement("div");chips.className="city-chips";
+      cities.forEach(function(city){
+        var chip=document.createElement("button");chip.className="city-chip";chip.textContent=city;
+        chip.addEventListener("click",function(){
+          document.querySelectorAll(".city-chip").forEach(function(c){c.classList.remove("selected");});
+          chip.classList.add("selected");selectedCity=city;
+        });
+        chips.appendChild(chip);
+      });
+      block.appendChild(chips);countriesList.appendChild(block);
+    });
+  }
+  buildBrowse();
+  countrySearch.addEventListener("input",function(){buildBrowse(countrySearch.value);});
+
+  /* ════════════════════════════════════════════
+     VIBES
+  ════════════════════════════════════════════ */
+  function buildVibes(){
+    vibesRow.innerHTML="";
+    VIBES.forEach(function(v){
+      var btn=document.createElement("button");
+      btn.className="vibe-btn"+(v===selectedVibe?" active":"");
+      btn.textContent=v;
+      btn.addEventListener("click",function(){
+        selectedVibe=v;
+        document.querySelectorAll(".vibe-btn").forEach(function(b){b.classList.toggle("active",b.textContent===v);});
+      });
+      vibesRow.appendChild(btn);
+    });
+  }
+
+  /* ════════════════════════════════════════════
+     SEARCH HISTORY
+  ════════════════════════════════════════════ */
+  function addToHistory(city){
+    searchHistory=searchHistory.filter(function(c){return c!==city;});
+    searchHistory.unshift(city);
+    if(searchHistory.length>6)searchHistory=searchHistory.slice(0,6);
+    localStorage.setItem("hg_history",JSON.stringify(searchHistory));
+    renderHistory();
+  }
+
+  function renderHistory(){
+    if(!searchHistory.length){historyWrap.classList.add("hidden");return;}
+    historyWrap.classList.remove("hidden");
+    historyChips.innerHTML="";
+    searchHistory.forEach(function(city){
+      var chip=document.createElement("button");chip.className="history-chip";chip.textContent=city;
+      chip.addEventListener("click",function(){
+        cityTypeInput.value=city;
+        activeTab="type";
+        document.querySelectorAll(".tab-btn").forEach(function(b){b.classList.toggle("active",b.dataset.tab==="type");});
+        document.querySelectorAll(".tab-panel").forEach(function(p){p.classList.remove("active");});
+        document.getElementById("tab-type").classList.add("active");
+        fetchGems(city);
+      });
+      historyChips.appendChild(chip);
+    });
+  }
+
+  /* ════════════════════════════════════════════
+     CATEGORY FILTER
+  ════════════════════════════════════════════ */
+  document.querySelectorAll(".cat-btn").forEach(function(btn){
+    btn.addEventListener("click",function(){
+      document.querySelectorAll(".cat-btn").forEach(function(b){b.classList.remove("active");});
+      btn.classList.add("active");
+      var cat=btn.dataset.cat;
+      var visible=0;
+      document.querySelectorAll(".card").forEach(function(card){
+        if(cat==="ALL"||card.dataset.cat===cat){card.classList.remove("cat-hidden");visible++;}
+        else card.classList.add("cat-hidden");
+      });
+      resultsCount.textContent=visible+" spot"+(visible!==1?"s":"")+" showing";
+    });
+  });
+
+  /* ════════════════════════════════════════════
+     VIEW TOGGLE
+  ════════════════════════════════════════════ */
+  viewGrid.addEventListener("click",function(){
+    cardsGrid.classList.remove("list-view");
+    viewGrid.classList.add("active"); viewList.classList.remove("active");
+  });
+  viewList.addEventListener("click",function(){
+    cardsGrid.classList.add("list-view");
+    viewList.classList.add("active"); viewGrid.classList.remove("active");
+  });
+
+  /* ════════════════════════════════════════════
+     SURPRISE ME
+  ════════════════════════════════════════════ */
+  surpriseBtn.addEventListener("click",function(){
+    var countries=Object.keys(CITIES);
+    var country=countries[Math.floor(Math.random()*countries.length)];
+    var cities=CITIES[country];
+    var city=cities[Math.floor(Math.random()*cities.length)];
+    selectedCity=city;
+    activeTab="type";
+    document.querySelectorAll(".tab-btn").forEach(function(b){b.classList.toggle("active",b.dataset.tab==="type");});
+    document.querySelectorAll(".tab-panel").forEach(function(p){p.classList.remove("active");});
+    document.getElementById("tab-type").classList.add("active");
+    cityTypeInput.value=city;
+    fetchGems(city);
+  });
+
+  /* ════════════════════════════════════════════
+     SHARE ALL
+  ════════════════════════════════════════════ */
+  shareAllBtn.addEventListener("click",function(){
+    var lines=["Hidden Gems: "+currentCity+" ("+selectedVibe+" Vibe)",""];
+    currentSpots.forEach(function(s,i){
+      lines.push((i+1)+". "+s.name+" ["+s.category+"] "+s.priceRange);
+      lines.push("   "+s.mustTry);
+    });
+    navigator.clipboard.writeText(lines.join("\n")).then(function(){showToast("Guide copied to clipboard!");});
+  });
+
+  /* ════════════════════════════════════════════
+     PRINT
+  ════════════════════════════════════════════ */
+  printBtn.addEventListener("click",function(){window.print();});
+
+  /* ════════════════════════════════════════════
+     TOAST
+  ════════════════════════════════════════════ */
+  function showToast(msg){
+    toast.textContent=msg; toast.classList.add("show");
+    setTimeout(function(){toast.classList.remove("show");},2800);
+  }
+
+  /* ════════════════════════════════════════════
+     STATE DISPLAY
+  ════════════════════════════════════════════ */
+  function showState(icon,title,sub,spinning,errMsg){
+    stateIcon.textContent=icon; stateIcon.className="state-icon"+(spinning?" spinning":"");
+    stateTitle.textContent=title; stateSub.textContent=sub;
+    stateArea.classList.remove("hidden"); resultsArea.classList.add("hidden");
+    if(errMsg){errorBox.classList.remove("hidden");errorText.textContent=errMsg;}
+    else errorBox.classList.add("hidden");
+  }
+
+  function getCity(){return activeTab==="type"?cityTypeInput.value.trim():selectedCity;}
+  function esc(s){var d=document.createElement("div");d.textContent=String(s||"");return d.innerHTML;}
+
+  /* ════════════════════════════════════════════
+     WEATHER
+  ════════════════════════════════════════════ */
+  async function fetchWeather(cityName){
+    try{
+      var geo=await fetch("https://nominatim.openstreetmap.org/search?q="+encodeURIComponent(cityName)+"&format=json&limit=1",{headers:{"Accept-Language":"en"}});
+      var gd=await geo.json();
+      if(!gd.length){bannerTemp.textContent="N/A";return;}
+      var wr=await fetch("https://api.open-meteo.com/v1/forecast?latitude="+gd[0].lat+"&longitude="+gd[0].lon+"&current=temperature_2m,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph");
+      var wd=await wr.json();
+      var cur=wd.current;
+      bannerTemp.textContent=Math.round(cur.temperature_2m)+"°F";
+      bannerCond.textContent=(WEATHER_CODES[cur.weather_code]||"Unknown")+" · Wind "+Math.round(cur.wind_speed_10m)+" mph";
+    }catch(e){bannerTemp.textContent="N/A";}
+  }
+
+  /* ════════════════════════════════════════════
+     CURRENCY
+  ════════════════════════════════════════════ */
+  async function fetchCurrency(code,name){
+    if(!code||code==="USD"){statCurrency.textContent="USD";statCurrencySub.textContent="US Dollar";return;}
+    try{
+      var res=await fetch("https://api.frankfurter.app/latest?from=USD&to="+code);
+      var data=await res.json();
+      var rate=data.rates[code];
+      statCurrency.textContent=rate?"1 USD = "+parseFloat(rate.toFixed(2))+" "+code:code;
+      statCurrencySub.textContent=name||"";
+    }catch(e){statCurrency.textContent=code;}
+  }
+
+  /* ════════════════════════════════════════════
+     LOCAL TIME
+  ════════════════════════════════════════════ */
+  var timeInterval=null;
+  function startLocalTime(timezone){
+    if(timeInterval)clearInterval(timeInterval);
+    function update(){
+      try{
+        var now=new Date();
+        var t=now.toLocaleTimeString("en-US",{timeZone:timezone,hour:"2-digit",minute:"2-digit",hour12:true});
+        var tz=now.toLocaleTimeString("en-US",{timeZone:timezone,timeZoneName:"short"}).split(" ").pop();
+        statLocalTime.textContent=t;
+        statTimezone.textContent=tz+" · "+timezone;
+      }catch(e){statLocalTime.textContent="N/A";}
+    }
+    update();
+    timeInterval=setInterval(update,30000);
+  }
+
+  /* ════════════════════════════════════════════
+     BUDGET ESTIMATOR
+  ════════════════════════════════════════════ */
+  function estimateBudget(spots){
+    var costs={"$":15,"$$":40,"$$$":90,"$$$$":175};
+    var total=0,count=0;
+    spots.forEach(function(s){if(costs[s.priceRange]){total+=costs[s.priceRange];count++;}});
+    if(!count)return "Varies";
+    var avg=total/count;
+    return "$"+Math.round(avg)+"-$"+Math.round(avg*1.6)+"/day";
+  }
+
+  /* ════════════════════════════════════════════
+     DISTANCE FROM USER
+  ════════════════════════════════════════════ */
+  function haversineKm(lat1,lon1,lat2,lon2){
+    var R=6371, dLat=(lat2-lat1)*Math.PI/180, dLon=(lon2-lon1)*Math.PI/180;
+    var a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+    return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+  }
+
+  async function fetchDistance(cityName){
+    try{
+      if(!userCoords){statDistance.textContent="N/A";statDistanceSub.textContent="Enable location for distance";return;}
+      var geo=await fetch("https://nominatim.openstreetmap.org/search?q="+encodeURIComponent(cityName)+"&format=json&limit=1",{headers:{"Accept-Language":"en"}});
+      var gd=await geo.json();
+      if(!gd.length){statDistance.textContent="N/A";return;}
+      var km=haversineKm(userCoords.lat,userCoords.lon,parseFloat(gd[0].lat),parseFloat(gd[0].lon));
+      var miles=Math.round(km*0.621371);
+      statDistance.textContent=miles.toLocaleString()+" mi";
+      statDistanceSub.textContent=Math.round(km).toLocaleString()+" km away";
+    }catch(e){statDistance.textContent="N/A";}
+  }
+
+  // Try to get user location silently
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(function(pos){
+      userCoords={lat:pos.coords.latitude,lon:pos.coords.longitude};
+    },function(){});
+  }
+
+  /* ════════════════════════════════════════════
+     PEXELS IMAGE
+  ════════════════════════════════════════════ */
+  async function fetchPexelsImage(query){
+    try{
+      var res=await fetch(API_BASE,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({service:"pexels",query:query})});
+      var data=await res.json();
+      if(data.photos&&data.photos.length>0)return data.photos[Math.floor(Math.random()*data.photos.length)].src.medium;
+    }catch(e){}
+    return null;
+  }
+
+  /* ════════════════════════════════════════════
+     BOOKMARKS
+  ════════════════════════════════════════════ */
+  function saveBookmarks(){localStorage.setItem("hg_bookmarks",JSON.stringify(bookmarks));}
+  function renderBookmarks(){
+    bookmarksGrid.innerHTML="";
+    if(!bookmarks.length){bookmarksSection.classList.add("hidden");return;}
+    bookmarksSection.classList.remove("hidden");
+    bookmarks.forEach(function(spot,i){
+      var chip=document.createElement("div");chip.className="bookmark-chip";
+      chip.innerHTML="<div><div class='bookmark-chip-name'>"+esc(spot.name)+"</div><div class='bookmark-chip-cat'>"+esc(spot.category)+" · "+esc(spot.city)+"</div></div><button class='bookmark-remove' data-i='"+i+"'>×</button>";
+      bookmarksGrid.appendChild(chip);
+    });
+    bookmarksGrid.querySelectorAll(".bookmark-remove").forEach(function(btn){
+      btn.addEventListener("click",function(){bookmarks.splice(parseInt(btn.dataset.i),1);saveBookmarks();renderBookmarks();});
+    });
+  }
+
+  /* ════════════════════════════════════════════
+     TRIP PLANNER
+  ════════════════════════════════════════════ */
+  function saveTrip(){localStorage.setItem("hg_trip",JSON.stringify(tripDays));}
+  function renderTrip(){
+    var hasItems=tripDays["1"].length||tripDays["2"].length||tripDays["3"].length;
+    if(!hasItems){tripSection.classList.add("hidden");return;}
+    tripSection.classList.remove("hidden");
+    tripGrid.innerHTML="";
+    [1,2,3].forEach(function(day){
+      var col=document.createElement("div");col.className="trip-day";
+      col.innerHTML="<div class='trip-day-title'>Day "+day+"<button class='trip-clear-btn' data-day='"+day+"'>Clear</button></div>";
+      if(!tripDays[day].length)col.innerHTML+="<div class='trip-empty'>No spots yet</div>";
+      else{
+        tripDays[day].forEach(function(spot,i){
+          var item=document.createElement("div");item.className="trip-spot";
+          item.innerHTML="<div><div class='trip-spot-name'>"+esc(spot.name)+"</div><div class='trip-spot-cat'>"+esc(spot.category)+"</div></div><button class='trip-remove' data-day='"+day+"' data-i='"+i+"'>×</button>";
+          col.appendChild(item);
+        });
+      }
+      tripGrid.appendChild(col);
+    });
+    tripGrid.querySelectorAll(".trip-clear-btn").forEach(function(btn){btn.addEventListener("click",function(){tripDays[btn.dataset.day]=[];saveTrip();renderTrip();});});
+    tripGrid.querySelectorAll(".trip-remove").forEach(function(btn){btn.addEventListener("click",function(){tripDays[btn.dataset.day].splice(parseInt(btn.dataset.i),1);saveTrip();renderTrip();});});
+  }
+
+  /* ════════════════════════════════════════════
+     RENDER CARDS
+  ════════════════════════════════════════════ */
+  function renderCards(spots,city,images){
+    cardsGrid.innerHTML="";
+    spots.forEach(function(spot,i){
+      var color=CAT_COLORS[spot.category]||"#1A2744";
+      var isBookmarked=bookmarks.some(function(b){return b.name===spot.name;});
+      var card=document.createElement("article");
+      card.className="card"; card.dataset.cat=spot.category;
+      var imgHtml=images[i]
+        ?"<img class='card-img' src='"+images[i]+"' alt='"+esc(spot.name)+"' loading='lazy'/><div class='card-img-overlay'></div>"
+        :"<div class='card-img-placeholder'>"+esc(spot.name)+"</div>";
+      var mapsUrl="https://maps.google.com/?q="+encodeURIComponent(spot.name+", "+city);
+      card.innerHTML=
+        "<div class='card-img-wrap' style='background:"+color+";'>"+imgHtml+
+          "<div class='card-stamp'>"+esc(spot.category)+"</div>"+
+          "<div class='card-price-badge'>"+esc(spot.priceRange)+"</div>"+
+        "</div>"+
+        "<div class='card-body'>"+
+          "<div class='card-name'>"+esc(spot.name)+"</div>"+
+          "<p class='card-desc'>"+esc(spot.description)+"</p>"+
+          "<div class='card-divider'></div>"+
+          "<div class='card-info'><div class='card-info-label'>MUST TRY</div><div class='card-info-text'>"+esc(spot.mustTry)+"</div></div>"+
+          "<div class='card-info'><div class='card-info-label'>INSIDER TIP</div><div class='card-info-text'>"+esc(spot.tip)+"</div></div>"+
+        "</div>"+
+        "<div class='card-actions'>"+
+          "<button class='card-action-btn bookmark-btn"+(isBookmarked?" bookmarked":"")+"' data-i='"+i+"'>"+(isBookmarked?"SAVED ♥":"SAVE ♡")+"</button>"+
+          "<button class='card-action-btn trip-btn' data-i='"+i+"'>+ TRIP</button>"+
+          "<a class='card-action-btn' href='"+mapsUrl+"' target='_blank' style='text-decoration:none;display:flex;align-items:center;justify-content:center;'>MAPS</a>"+
+          "<button class='card-action-btn share-btn' data-i='"+i+"'>SHARE</button>"+
+        "</div>"+
+        "<div class='day-picker' id='daypicker-"+i+"'>"+
+          "<button class='day-pick-btn' data-day='1' data-i='"+i+"'>Day 1</button>"+
+          "<button class='day-pick-btn' data-day='2' data-i='"+i+"'>Day 2</button>"+
+          "<button class='day-pick-btn' data-day='3' data-i='"+i+"'>Day 3</button>"+
+        "</div>";
+      cardsGrid.appendChild(card);
+
+      // Bookmark
+      card.querySelector(".bookmark-btn").addEventListener("click",function(){
+        var idx=bookmarks.findIndex(function(b){return b.name===spot.name;});
+        if(idx>-1){bookmarks.splice(idx,1);this.textContent="SAVE ♡";this.classList.remove("bookmarked");}
+        else{bookmarks.push({name:spot.name,category:spot.category,city:city});this.textContent="SAVED ♥";this.classList.add("bookmarked");}
+        saveBookmarks();renderBookmarks();
+      });
+
+      // Add to trip
+      card.querySelector(".trip-btn").addEventListener("click",function(){
+        var picker=document.getElementById("daypicker-"+i);
+        document.querySelectorAll(".day-picker").forEach(function(p){if(p!==picker)p.classList.remove("open");});
+        picker.classList.toggle("open");
+      });
+
+      // Day pick
+      card.querySelectorAll(".day-pick-btn").forEach(function(btn){
+        btn.addEventListener("click",function(){
+          var day=btn.dataset.day;
+          if(!tripDays[day].some(function(s){return s.name===spot.name;}))
+            tripDays[day].push({name:spot.name,category:spot.category});
+          saveTrip();renderTrip();
+          document.getElementById("daypicker-"+i).classList.remove("open");
+          showToast(spot.name+" added to Day "+day);
+        });
+      });
+
+      // Share card
+      card.querySelector(".share-btn").addEventListener("click",function(){
+        var text="Hidden Gem: "+spot.name+" ("+city+")\n"+spot.description+"\nMust try: "+spot.mustTry+"\nTip: "+spot.tip;
+        navigator.clipboard.writeText(text).then(function(){showToast("Spot copied to clipboard!");});
+      });
     });
 
-    /* STATE */
-    function showState(icon, title, sub, spinning, errMsg) {
-      stateIcon.textContent = icon; stateIcon.className = "state-icon" + (spinning ? " spinning" : "");
-      stateTitle.textContent = title; stateSub.textContent = sub;
-      stateArea.classList.remove("hidden"); resultsArea.classList.add("hidden");
-      if (errMsg) { errorBox.classList.remove("hidden"); errorText.textContent = errMsg; }
-      else errorBox.classList.add("hidden");
-    }
+    resultsCount.textContent=spots.length+" spots showing";
 
-    function getCity() { return activeTab === "type" ? cityTypeInput.value.trim() : selectedCity; }
-    function esc(s) { var d = document.createElement("div"); d.textContent = String(s||""); return d.innerHTML; }
+    // Close day pickers on outside click
+    document.addEventListener("click",function(e){
+      if(!e.target.classList.contains("trip-btn")&&!e.target.classList.contains("day-pick-btn"))
+        document.querySelectorAll(".day-picker").forEach(function(p){p.classList.remove("open");});
+    });
+  }
 
-    /* WEATHER */
-    async function fetchWeather(cityName) {
-      try {
-        var geo = await fetch("https://nominatim.openstreetmap.org/search?q=" + encodeURIComponent(cityName) + "&format=json&limit=1", { headers: { "Accept-Language": "en" } });
-        var gd = await geo.json();
-        if (!gd.length) { infoWeather.textContent = "N/A"; return; }
-        var wr = await fetch("https://api.open-meteo.com/v1/forecast?latitude=" + gd[0].lat + "&longitude=" + gd[0].lon + "&current=temperature_2m,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph");
-        var wd = await wr.json();
-        var cur = wd.current;
-        infoWeather.textContent = Math.round(cur.temperature_2m) + "°F";
-        infoWeatherSub.textContent = (WEATHER_CODES[cur.weather_code] || "Unknown") + "  |  Wind " + Math.round(cur.wind_speed_10m) + " mph";
-      } catch(e) { infoWeather.textContent = "Unavailable"; }
-    }
+  /* ════════════════════════════════════════════
+     FETCH GEMS
+  ════════════════════════════════════════════ */
+  async function fetchGems(city){
+    showState("🧭","Exploring "+city+"...","Consulting the local archives...",true,null);
+    exploreBtn.disabled=true; exploreBtn.textContent="SEARCHING...";
+    currentCity=city;
 
-    /* CURRENCY */
-    async function fetchCurrency(code) {
-      if (!code || code === "USD") { infoCurrency.textContent = "USD"; infoCurrencySub.textContent = "US Dollar"; return; }
-      try {
-        var res = await fetch("https://api.frankfurter.app/latest?from=USD&to=" + code);
-        var data = await res.json();
-        var rate = data.rates[code];
-        infoCurrency.textContent = rate ? "1 USD = " + parseFloat(rate.toFixed(2)) + " " + code : code;
-        infoCurrencySub.textContent = "Live exchange rate";
-      } catch(e) { infoCurrency.textContent = code || "N/A"; }
-    }
+    var prompt="You are an expert local travel guide. List exactly 6 hidden gem spots in "+city+" for a \""+selectedVibe+"\" vibe traveler. Real, specific, lesser-known places only — no tourist traps.\n\nReturn ONLY a valid JSON object. No markdown, no backticks, no extra text. Start with { end with }.\n\nExact schema:\n{\"bestTimeToVisit\":\"One concise sentence.\",\"currency\":\"ISO 3-letter code\",\"currencyName\":\"Full currency name\",\"timezone\":\"IANA timezone e.g. America/New_York\",\"safetyTip\":\"Short safety note for travelers, start with Very Safe / Generally Safe / Exercise Caution\",\"localPhrases\":[{\"phrase\":\"word\",\"meaning\":\"English meaning\",\"pronunciation\":\"how to say it\"}],\"nearbyCities\":[\"City1\",\"City2\",\"City3\"],\"spots\":[{\"name\":\"Name\",\"category\":\"Food\",\"description\":\"Two vivid sentences.\",\"tip\":\"Insider secret.\",\"priceRange\":\"$$\",\"mustTry\":\"Best thing here.\",\"imageQuery\":\"3-4 word photo search phrase\"}]}\n\ncategory: Food|Explore|Nightlife|Nature|Culture|Shop\npriceRange: $|$$|$$$|$$$$\nReturn 5 localPhrases. Return exactly 3 nearbyCities.";
 
-    /* PEXELS */
-    async function fetchPexelsImage(query) {
-      try {
-        var res = await fetch(API_BASE, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ service: "pexels", query: query })
+    try{
+      var res=await fetch(API_BASE,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({service:"anthropic",payload:{model:"claude-haiku-4-5-20251001",max_tokens:2200,messages:[{role:"user",content:prompt}]}})});
+      var data=await res.json();
+      if(!res.ok)throw new Error((data.error&&data.error.message)?data.error.message:"HTTP "+res.status);
+      var raw=data.content[0].text.replace(/```json|```/g,"").trim();
+      var parsed=JSON.parse(raw);
+      var spots=parsed.spots;
+      currentSpots=spots;
+
+      // Update info banner
+      bannerCity.textContent=city;
+      bannerVibe.textContent=selectedVibe+" Vibe";
+      statBestTime.textContent=parsed.bestTimeToVisit||"Ask locally";
+      var safetyText=parsed.safetyTip||"No data";
+      statSafety.textContent=safetyText;
+      if(safetyText.toLowerCase().includes("very safe"))statSafety.className="city-stat-value safety-safe";
+      else if(safetyText.toLowerCase().includes("generally safe"))statSafety.className="city-stat-value safety-safe";
+      else if(safetyText.toLowerCase().includes("caution"))statSafety.className="city-stat-value safety-caution";
+      else statSafety.className="city-stat-value safety-moderate";
+      statBudget.textContent=estimateBudget(spots);
+      cityLabel.textContent=city;
+      vibeLabel.textContent=selectedVibe.toUpperCase()+" VIBE  .  "+spots.length+" HIDDEN GEMS";
+
+      // Reset category filter to ALL
+      document.querySelectorAll(".cat-btn").forEach(function(b){b.classList.toggle("active",b.dataset.cat==="ALL");});
+
+      // Parallel async operations
+      fetchWeather(city);
+      fetchCurrency(parsed.currency,parsed.currencyName);
+      if(parsed.timezone)startLocalTime(parsed.timezone);
+      fetchDistance(city);
+
+      // Fetch images
+      var images=await Promise.all(spots.map(function(s){return fetchPexelsImage((s.imageQuery||s.category)+" "+city);}));
+      renderCards(spots,city,images);
+
+      // Local phrases
+      if(parsed.localPhrases&&parsed.localPhrases.length){
+        phrasesSection.classList.remove("hidden");
+        phrasesGrid.innerHTML="";
+        parsed.localPhrases.forEach(function(p){
+          var card=document.createElement("div");card.className="phrase-card";
+          card.innerHTML="<div class='phrase-text'>"+esc(p.phrase)+"</div><div class='phrase-meaning'>"+esc(p.meaning)+"</div><div class='phrase-pron'>"+esc(p.pronunciation)+"</div>";
+          phrasesGrid.appendChild(card);
         });
-        var data = await res.json();
-        if (data.photos && data.photos.length > 0)
-          return data.photos[Math.floor(Math.random() * data.photos.length)].src.medium;
-      } catch(e) {}
-      return null;
-    }
+      }else phrasesSection.classList.add("hidden");
 
-    /* BOOKMARKS */
-    function saveBookmarks() { localStorage.setItem("hg_bookmarks", JSON.stringify(bookmarks)); }
-    function renderBookmarks() {
-      bookmarksGrid.innerHTML = "";
-      if (!bookmarks.length) { bookmarksSection.classList.add("hidden"); return; }
-      bookmarksSection.classList.remove("hidden");
-      bookmarks.forEach(function(spot, i) {
-        var chip = document.createElement("div"); chip.className = "bookmark-chip";
-        chip.innerHTML = "<div><div style='font-family:Playfair Display,serif;font-weight:700;font-size:14px;'>" + esc(spot.name) + "</div><div class='bookmark-chip-cat'>" + esc(spot.category) + " . " + esc(spot.city) + "</div></div><button class='bookmark-remove' data-i='" + i + "'>x</button>";
-        bookmarksGrid.appendChild(chip);
-      });
-      bookmarksGrid.querySelectorAll(".bookmark-remove").forEach(function(btn) {
-        btn.addEventListener("click", function() { bookmarks.splice(parseInt(btn.dataset.i),1); saveBookmarks(); renderBookmarks(); });
-      });
-    }
-
-    /* TRIP PLANNER */
-    function saveTrip() { localStorage.setItem("hg_trip", JSON.stringify(tripDays)); }
-    function renderTrip() {
-      var hasItems = tripDays["1"].length || tripDays["2"].length || tripDays["3"].length;
-      if (!hasItems) { tripSection.classList.add("hidden"); return; }
-      tripSection.classList.remove("hidden");
-      tripGrid.innerHTML = "";
-      [1,2,3].forEach(function(day) {
-        var col = document.createElement("div"); col.className = "trip-day";
-        col.innerHTML = "<div class='trip-day-title'>Day " + day + "<button class='trip-clear-btn' data-day='" + day + "'>Clear</button></div>";
-        if (!tripDays[day].length) { col.innerHTML += "<div class='trip-empty'>No spots yet</div>"; }
-        else {
-          tripDays[day].forEach(function(spot, i) {
-            var item = document.createElement("div"); item.className = "trip-spot";
-            item.innerHTML = "<div><div class='trip-spot-name'>" + esc(spot.name) + "</div><div class='trip-spot-cat'>" + esc(spot.category) + "</div></div><button class='trip-remove' data-day='" + day + "' data-i='" + i + "'>x</button>";
-            col.appendChild(item);
+      // Nearby cities
+      if(parsed.nearbyCities&&parsed.nearbyCities.length){
+        nearbySection.classList.remove("hidden");
+        nearbyChips.innerHTML="";
+        parsed.nearbyCities.forEach(function(nc){
+          var chip=document.createElement("button");chip.className="nearby-chip";chip.textContent=nc;
+          chip.addEventListener("click",function(){
+            cityTypeInput.value=nc;
+            activeTab="type";
+            document.querySelectorAll(".tab-btn").forEach(function(b){b.classList.toggle("active",b.dataset.tab==="type");});
+            document.querySelectorAll(".tab-panel").forEach(function(p){p.classList.remove("active");});
+            document.getElementById("tab-type").classList.add("active");
+            fetchGems(nc);
           });
-        }
-        tripGrid.appendChild(col);
-      });
-      tripGrid.querySelectorAll(".trip-clear-btn").forEach(function(btn) {
-        btn.addEventListener("click", function() { tripDays[btn.dataset.day]=[]; saveTrip(); renderTrip(); });
-      });
-      tripGrid.querySelectorAll(".trip-remove").forEach(function(btn) {
-        btn.addEventListener("click", function() { tripDays[btn.dataset.day].splice(parseInt(btn.dataset.i),1); saveTrip(); renderTrip(); });
-      });
-    }
-
-    /* RENDER CARDS */
-    function renderCards(spots, city, images) {
-      cardsGrid.innerHTML = "";
-      spots.forEach(function(spot, i) {
-        var color = CAT_COLORS[spot.category] || "#1A2744";
-        var isBookmarked = bookmarks.some(function(b){ return b.name === spot.name; });
-        var card = document.createElement("article"); card.className = "card";
-        var imgHtml = images[i]
-          ? "<img class='card-img' src='" + images[i] + "' alt='" + esc(spot.name) + "' loading='lazy'/><div class='card-img-overlay'></div>"
-          : "<div class='card-img-placeholder'>" + esc(spot.name) + "</div>";
-        card.innerHTML =
-          "<div class='card-img-wrap' style='background-color:" + color + ";'>" + imgHtml +
-            "<div class='card-stamp'>" + esc(spot.category) + "</div>" +
-            "<div class='card-price-badge'>" + esc(spot.priceRange) + "</div>" +
-          "</div>" +
-          "<div class='card-body'>" +
-            "<div class='card-name'>" + esc(spot.name) + "</div>" +
-            "<p class='card-desc'>" + esc(spot.description) + "</p>" +
-            "<div class='card-divider'></div>" +
-            "<div class='card-info'><div class='card-info-label'>MUST TRY</div><div class='card-info-text'>" + esc(spot.mustTry) + "</div></div>" +
-            "<div class='card-info'><div class='card-info-label'>INSIDER TIP</div><div class='card-info-text'>" + esc(spot.tip) + "</div></div>" +
-          "</div>" +
-          "<div class='card-actions'>" +
-            "<button class='card-action-btn bookmark-btn" + (isBookmarked ? " bookmarked" : "") + "' data-i='" + i + "'>" + (isBookmarked ? "SAVED" : "SAVE") + "</button>" +
-            "<button class='card-action-btn trip-btn' data-i='" + i + "'>ADD TO TRIP</button>" +
-          "</div>" +
-          "<div class='day-picker' id='daypicker-" + i + "'>" +
-            "<button class='day-pick-btn' data-day='1' data-i='" + i + "'>Day 1</button>" +
-            "<button class='day-pick-btn' data-day='2' data-i='" + i + "'>Day 2</button>" +
-            "<button class='day-pick-btn' data-day='3' data-i='" + i + "'>Day 3</button>" +
-          "</div>";
-        cardsGrid.appendChild(card);
-
-        card.querySelector(".bookmark-btn").addEventListener("click", function() {
-          var idx = bookmarks.findIndex(function(b){ return b.name === spot.name; });
-          if (idx > -1) { bookmarks.splice(idx,1); this.textContent="SAVE"; this.classList.remove("bookmarked"); }
-          else { bookmarks.push({ name:spot.name, category:spot.category, city:city }); this.textContent="SAVED"; this.classList.add("bookmarked"); }
-          saveBookmarks(); renderBookmarks();
+          nearbyChips.appendChild(chip);
         });
+      }else nearbySection.classList.add("hidden");
 
-        card.querySelector(".trip-btn").addEventListener("click", function() {
-          var picker = document.getElementById("daypicker-" + i);
-          document.querySelectorAll(".day-picker").forEach(function(p){ if(p!==picker) p.classList.remove("open"); });
-          picker.classList.toggle("open");
-        });
+      addToHistory(city);
+      renderBookmarks();
+      renderTrip();
+      stateArea.classList.add("hidden");
+      resultsArea.classList.remove("hidden");
+      window.scrollTo({top:0,behavior:"smooth"});
 
-        card.querySelectorAll(".day-pick-btn").forEach(function(btn) {
-          btn.addEventListener("click", function() {
-            var day = btn.dataset.day;
-            if (!tripDays[day].some(function(s){ return s.name===spot.name; }))
-              tripDays[day].push({ name:spot.name, category:spot.category });
-            saveTrip(); renderTrip();
-            document.getElementById("daypicker-" + i).classList.remove("open");
-          });
-        });
-      });
-
-      document.addEventListener("click", function(e) {
-        if (!e.target.classList.contains("trip-btn") && !e.target.classList.contains("day-pick-btn"))
-          document.querySelectorAll(".day-picker").forEach(function(p){ p.classList.remove("open"); });
-      });
+    }catch(err){
+      showState("!","Something went wrong","Here is the exact error:",false,err.message||"Unknown error");
     }
+    exploreBtn.disabled=false; exploreBtn.textContent="EXPLORE";
+  }
 
-    /* FETCH GEMS */
-    async function fetchGems(city) {
-      showState("🧭","Exploring " + city + "...","Consulting the local archives...",true,null);
-      exploreBtn.disabled=true; exploreBtn.textContent="SEARCHING...";
+  /* ════════════════════════════════════════════
+     EXPLORE
+  ════════════════════════════════════════════ */
+  async function handleExplore(){
+    var city=getCity();
+    if(!city){showState("!","No city selected","Click the map, browse the list, or type a city.",false,null);return;}
+    await fetchGems(city);
+  }
 
-      var prompt = "You are an expert local travel guide. List exactly 6 hidden gem spots in " + city + " for a \"" + selectedVibe + "\" vibe traveler. Real, specific, lesser-known places only.\n\nReturn ONLY a valid JSON object. No markdown, no backticks, no extra text. Start with { end with }.\n\nExact schema:\n{\"bestTimeToVisit\":\"One concise sentence.\",\"currency\":\"3-letter ISO code e.g. JPY\",\"currencyName\":\"e.g. Japanese Yen\",\"spots\":[{\"name\":\"Place Name\",\"category\":\"Food\",\"description\":\"Two vivid sentences.\",\"tip\":\"One insider secret.\",\"priceRange\":\"$$\",\"mustTry\":\"Best thing here.\",\"imageQuery\":\"3-4 word photo search phrase\"}]}\n\ncategory: Food|Explore|Nightlife|Nature|Culture|Shop\npriceRange: $|$$|$$$|$$$$";
+  /* ════════════════════════════════════════════
+     EVENTS
+  ════════════════════════════════════════════ */
+  exploreBtn.addEventListener("click",handleExplore);
+  cityTypeInput.addEventListener("keydown",function(e){if(e.key==="Enter")handleExplore();});
 
-      try {
-        var res = await fetch(API_BASE, {
-          method:"POST", headers:{"Content-Type":"application/json"},
-          body: JSON.stringify({ service:"anthropic", payload:{ model:"claude-haiku-4-5-20251001", max_tokens:1800, messages:[{role:"user",content:prompt}] }})
-        });
-        var data = await res.json();
-        if (!res.ok) throw new Error((data.error&&data.error.message)?data.error.message:"HTTP "+res.status);
-        var raw = data.content[0].text.replace(/```json|```/g,"").trim();
-        var parsed = JSON.parse(raw);
-        var spots = parsed.spots;
-
-        infoCityName.textContent = city;
-        infoVibe.textContent = selectedVibe + " Vibe";
-        infoBestTime.textContent = parsed.bestTimeToVisit || "Ask locally";
-        cityLabel.textContent = city;
-        vibeLabel.textContent = selectedVibe.toUpperCase() + " VIBE  .  " + spots.length + " HIDDEN GEMS";
-
-        fetchWeather(city);
-        fetchCurrency(parsed.currency);
-
-        var images = await Promise.all(spots.map(function(s){ return fetchPexelsImage((s.imageQuery||s.category)+" "+city); }));
-        renderCards(spots, city, images);
-        renderBookmarks();
-        renderTrip();
-        stateArea.classList.add("hidden");
-        resultsArea.classList.remove("hidden");
-
-      } catch(err) {
-        showState("!","Something went wrong","Here is the exact error:",false,err.message||"Unknown error");
-      }
-      exploreBtn.disabled=false; exploreBtn.textContent="EXPLORE";
-    }
-
-    async function handleExplore() {
-      var city = getCity();
-      if (!city) { showState("!","No city selected","Click the map, browse the list, or type a city.",false,null); return; }
-      await fetchGems(city);
-    }
-
-    exploreBtn.addEventListener("click", handleExplore);
-    cityTypeInput.addEventListener("keydown", function(e){ if(e.key==="Enter") handleExplore(); });
-
-    buildVibes(); buildBrowse(); renderBookmarks(); renderTrip();
-  </script>
+  /* ════════════════════════════════════════════
+     INIT
+  ════════════════════════════════════════════ */
+  buildVibes(); buildBrowse(); renderBookmarks(); renderTrip(); renderHistory();
+</script>
 </body>
 </html>
