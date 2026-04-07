@@ -11,123 +11,144 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { background-color: #F0E3C5; font-family: 'Special Elite', monospace; color: #1A2744; min-height: 100vh; }
-    .hero { background-color: #1A2744 !important; background: #1A2744 !important; padding: 44px 24px 48px; text-align: center; position: relative; overflow: hidden; }
-    .hero::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, transparent, transparent 48px, rgba(200,150,42,.06) 48px, rgba(200,150,42,.06) 49px), repeating-linear-gradient(90deg, transparent, transparent 48px, rgba(200,150,42,.04) 48px, rgba(200,150,42,.04) 49px); }
-    .hero-badge { display: inline-block; border: 1.5px solid #C8962A; color: #C8962A !important; font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 5px; text-transform: uppercase; padding: 5px 20px; margin-bottom: 20px; position: relative; z-index: 1; }
-    .hero-title { font-family: 'Playfair Display', serif; font-size: clamp(50px, 10vw, 92px); font-weight: 900; color: #F0E3C5 !important; line-height: 0.92; letter-spacing: -3px; margin-bottom: 10px; position: relative; z-index: 1; }
-    .hero-title em { color: #C8962A !important; font-style: italic; }
-    .hero-tagline { font-family: 'Courier Prime', monospace; color: rgba(240,227,197,0.5) !important; font-size: 12px; letter-spacing: 3px; margin-bottom: 24px; position: relative; z-index: 1; }
 
-    /* KEY INPUTS */
-    .keys-wrap { max-width: 560px; margin: 0 auto 6px; position: relative; z-index: 1; }
-    .api-row { display: flex; border: 1.5px solid rgba(200,150,42,0.6); margin-bottom: 8px; }
-    .api-input { flex: 1; background-color: rgba(255,255,255,0.08); border: none; outline: none; color: #F0E3C5 !important; font-family: 'Courier Prime', monospace; font-size: 12px; padding: 11px 14px; }
-    .api-input::placeholder { color: rgba(240,227,197,0.35); }
-    .api-save-btn { background-color: rgba(200,150,42,0.25); border: none; border-left: 1.5px solid rgba(200,150,42,0.6); color: #C8962A !important; font-family: 'Courier Prime', monospace; font-weight: 700; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; padding: 11px 14px; cursor: pointer; white-space: nowrap; }
-    .api-save-btn:hover { background-color: rgba(200,150,42,0.4); }
-    .api-hint { font-family: 'Courier Prime', monospace; font-size: 10px; color: rgba(240,227,197,0.35) !important; margin-bottom: 22px; letter-spacing: 1px; position: relative; z-index: 1; }
-    .api-hint a { color: rgba(200,150,42,0.7); text-decoration: none; }
-    .api-hint.saved { color: #6AB04C !important; }
-    .key-status { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 1px; padding: 3px 0; }
-    .key-status.ok { color: #6AB04C !important; }
-    .key-status.missing { color: rgba(240,227,197,0.35) !important; }
+    .hero { background-color: #1A2744; padding: 40px 24px 44px; text-align: center; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, transparent, transparent 48px, rgba(200,150,42,.055) 48px, rgba(200,150,42,.055) 49px), repeating-linear-gradient(90deg, transparent, transparent 48px, rgba(200,150,42,.035) 48px, rgba(200,150,42,.035) 49px); }
+    .hero-badge { display: inline-block; border: 1.5px solid #C8962A; color: #C8962A; font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 5px; text-transform: uppercase; padding: 5px 20px; margin-bottom: 18px; position: relative; z-index: 1; }
+    .hero-title { font-family: 'Playfair Display', serif; font-size: clamp(48px, 10vw, 90px); font-weight: 900; color: #F0E3C5; line-height: 0.92; letter-spacing: -3px; margin-bottom: 8px; position: relative; z-index: 1; }
+    .hero-title em { color: #C8962A; font-style: italic; }
+    .hero-tagline { font-family: 'Courier Prime', monospace; color: rgba(240,227,197,.42); font-size: 12px; letter-spacing: 3px; margin-bottom: 28px; position: relative; z-index: 1; }
 
-    /* PICKER */
     .picker-wrap { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
-    .tab-row { display: flex; justify-content: center; margin-bottom: 0; }
-    .tab-btn { background-color: rgba(255,255,255,0.06); border: 1px solid rgba(200,150,42,0.4); color: #F0E3C5 !important; font-family: 'Courier Prime', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 10px 24px; cursor: pointer; margin-right: -1px; }
+    .picker-top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0; gap: 10px; flex-wrap: wrap; }
+    .tab-row { display: flex; }
+    .tab-btn { background-color: rgba(255,255,255,.06); border: 1px solid rgba(200,150,42,.4); color: #F0E3C5; font-family: 'Courier Prime', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 10px 22px; cursor: pointer; margin-right: -1px; transition: all .18s; }
     .tab-btn:hover { border-color: #C8962A; }
-    .tab-btn.active { background-color: #C8962A !important; border-color: #C8962A; color: #1A2744 !important; }
+    .tab-btn.active { background-color: #C8962A; border-color: #C8962A; color: #1A2744; }
+    .surprise-btn { background-color: transparent; border: 1.5px solid #C8962A; color: #C8962A; font-family: 'Courier Prime', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 10px 18px; cursor: pointer; transition: all .18s; white-space: nowrap; }
+    .surprise-btn:hover { background-color: #C8962A; color: #1A2744; }
+
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
-    /* MAP */
-    #map { width: 100%; height: 320px; border: 2px solid #C8962A; cursor: crosshair; }
-    .map-hint { font-family: 'Courier Prime', monospace; font-size: 11px; color: rgba(240,227,197,0.45) !important; text-align: center; padding: 7px 0 0; letter-spacing: 1px; }
-    .map-selected { font-family: 'Courier Prime', monospace; font-size: 12px; color: #C8962A !important; text-align: center; padding: 5px 0 0; min-height: 22px; font-weight: 700; }
+    /* MAP — Esri dark tiles use English labels */
+    #map { width: 100%; height: 300px; border: 2px solid #C8962A; cursor: crosshair; }
+    .map-hint { font-family: 'Courier Prime', monospace; font-size: 11px; color: rgba(240,227,197,.4); text-align: center; padding: 6px 0 0; letter-spacing: 1px; }
+    .map-selected { font-family: 'Courier Prime', monospace; font-size: 12px; color: #C8962A; text-align: center; padding: 4px 0 0; min-height: 20px; font-weight: 700; }
 
-    /* BROWSE */
-    .browse-panel { padding: 14px 0 0; }
-    .country-search { width: 100%; background-color: rgba(255,255,255,0.08); border: 1px solid rgba(200,150,42,0.5); color: #F0E3C5 !important; font-family: 'Courier Prime', monospace; font-size: 13px; padding: 10px 14px; outline: none; margin-bottom: 10px; }
-    .country-search::placeholder { color: rgba(240,227,197,0.35); }
-    .countries-list { max-height: 260px; overflow-y: auto; }
+    .browse-panel { padding: 12px 0 0; }
+    .country-search { width: 100%; background-color: rgba(255,255,255,.08); border: 1px solid rgba(200,150,42,.5); color: #F0E3C5; font-family: 'Courier Prime', monospace; font-size: 13px; padding: 10px 14px; outline: none; margin-bottom: 10px; }
+    .country-search::placeholder { color: rgba(240,227,197,.3); }
+    .countries-list { max-height: 240px; overflow-y: auto; }
     .countries-list::-webkit-scrollbar { width: 4px; }
     .countries-list::-webkit-scrollbar-thumb { background: #C8962A; }
-    .country-block { margin-bottom: 12px; }
-    .country-label { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: rgba(240,227,197,0.4) !important; padding: 3px 2px; border-bottom: 1px solid rgba(200,150,42,0.2); margin-bottom: 7px; }
+    .country-block { margin-bottom: 10px; }
+    .country-label { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: rgba(240,227,197,.38); padding: 3px 2px; border-bottom: 1px solid rgba(200,150,42,.18); margin-bottom: 6px; }
     .city-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-    .city-chip { background-color: rgba(255,255,255,0.07); border: 1px solid rgba(200,150,42,0.35); color: #F0E3C5 !important; font-family: 'Courier Prime', monospace; font-size: 11px; padding: 5px 12px; cursor: pointer; }
-    .city-chip:hover { background-color: rgba(200,150,42,0.3); border-color: #C8962A; }
-    .city-chip.selected { background-color: #C8962A !important; border-color: #C8962A; color: #1A2744 !important; font-weight: 700; }
+    .city-chip { background-color: rgba(255,255,255,.07); border: 1px solid rgba(200,150,42,.32); color: #F0E3C5; font-family: 'Courier Prime', monospace; font-size: 11px; padding: 5px 12px; cursor: pointer; transition: all .15s; }
+    .city-chip:hover { background-color: rgba(200,150,42,.28); border-color: #C8962A; }
+    .city-chip.selected { background-color: #C8962A; border-color: #C8962A; color: #1A2744; font-weight: 700; }
 
-    /* TYPE */
-    .type-panel { padding: 14px 0 0; }
-    .city-type-input { width: 100%; background-color: rgba(255,255,255,0.08); border: 2px solid #C8962A; color: #F0E3C5 !important; font-family: 'Special Elite', monospace; font-size: 16px; padding: 14px 18px; outline: none; }
-    .city-type-input::placeholder { color: rgba(240,227,197,0.35); }
+    .type-panel { padding: 12px 0 0; }
+    .city-type-input { width: 100%; background-color: rgba(255,255,255,.08); border: 2px solid #C8962A; color: #F0E3C5; font-family: 'Special Elite', monospace; font-size: 16px; padding: 14px 18px; outline: none; }
+    .city-type-input::placeholder { color: rgba(240,227,197,.3); }
 
-    /* VIBES + GO */
-    .vibes-go-wrap { margin-top: 14px; }
-    .vibes-row { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; margin-bottom: 12px; }
-    .vibe-btn { background-color: transparent; border: 1px solid rgba(200,150,42,0.4); color: #F0E3C5 !important; font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 1px; padding: 7px 15px; cursor: pointer; }
+    .vibes-go-wrap { margin-top: 13px; }
+    .vibes-row { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; margin-bottom: 11px; }
+    .vibe-btn { background-color: transparent; border: 1px solid rgba(200,150,42,.38); color: #F0E3C5; font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 1px; padding: 7px 14px; cursor: pointer; transition: all .18s; }
     .vibe-btn:hover { border-color: #C8962A; }
-    .vibe-btn.active { background-color: #C8962A !important; border-color: #C8962A; color: #1A2744 !important; font-weight: 700; }
-    .go-btn { width: 100%; background-color: #C8962A; border: none; color: #1A2744 !important; font-family: 'Courier Prime', monospace; font-weight: 700; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; padding: 15px; cursor: pointer; }
+    .vibe-btn.active { background-color: #C8962A; border-color: #C8962A; color: #1A2744; font-weight: 700; }
+    .go-btn { width: 100%; background-color: #C8962A; border: none; color: #1A2744; font-family: 'Courier Prime', monospace; font-weight: 700; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; padding: 15px; cursor: pointer; transition: background .2s; }
     .go-btn:hover:not(:disabled) { background-color: #E0A830; }
-    .go-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .go-btn:disabled { opacity: .45; cursor: not-allowed; }
 
-    /* MAIN */
-    .main-body { max-width: 1180px; margin: 0 auto; padding: 52px 24px 32px; }
+    .main-body { max-width: 1180px; margin: 0 auto; padding: 48px 24px 32px; }
     .hidden { display: none !important; }
 
-    /* STATE */
     .state-box { text-align: center; padding: 70px 24px; }
-    .state-icon { font-size: 56px; margin-bottom: 16px; display: block; }
+    .state-icon { font-size: 52px; margin-bottom: 16px; display: block; }
     .state-icon.spinning { display: inline-block; animation: spin 1.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .state-title { font-family: 'Playfair Display', serif; font-size: 24px; color: #1A2744; margin-bottom: 8px; }
     .state-sub { font-family: 'Courier Prime', monospace; font-size: 12px; letter-spacing: 2px; color: #8B7355; }
-    .error-box { background-color: #2C0A0A; border: 1px solid #8B1A1A; padding: 14px 18px; margin-top: 14px; font-family: 'Courier Prime', monospace; font-size: 12px; color: #FF9999 !important; text-align: left; word-break: break-all; line-height: 1.6; max-width: 500px; margin-left: auto; margin-right: auto; }
-    .error-box strong { color: #FF5555 !important; display: block; margin-bottom: 4px; }
+    .error-box { background-color: #2C0A0A; border: 1px solid #8B1A1A; padding: 13px 16px; margin-top: 13px; font-family: 'Courier Prime', monospace; font-size: 12px; color: #FF9999; text-align: left; word-break: break-all; line-height: 1.6; max-width: 500px; margin-left: auto; margin-right: auto; }
+    .error-box strong { color: #FF5555; display: block; margin-bottom: 4px; }
 
-    /* RESULTS HEADER */
-    .section-rule { text-align: center; color: #C8962A; font-size: 16px; letter-spacing: 4px; margin-bottom: 14px; position: relative; }
-    .section-rule::before, .section-rule::after { content: ''; position: absolute; top: 50%; width: 36%; height: 1px; background-color: #C8962A; opacity: 0.35; }
+    .info-bar { background-color: #1A2744; padding: 20px 28px; margin-bottom: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
+    .info-item { text-align: center; }
+    .info-label { font-family: 'Courier Prime', monospace; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: rgba(200,150,42,.7); margin-bottom: 5px; }
+    .info-value { font-family: 'Playfair Display', serif; font-size: 18px; color: #F0E3C5; font-weight: 700; line-height: 1.2; }
+    .info-sub { font-family: 'Courier Prime', monospace; font-size: 11px; color: rgba(240,227,197,.45); margin-top: 3px; letter-spacing: .5px; }
+
+    .section-rule { text-align: center; color: #C8962A; font-size: 14px; letter-spacing: 4px; margin-bottom: 12px; position: relative; }
+    .section-rule::before, .section-rule::after { content: ''; position: absolute; top: 50%; width: 34%; height: 1px; background-color: #C8962A; opacity: .35; }
     .section-rule::before { left: 0; } .section-rule::after { right: 0; }
-    .section-heading { font-family: 'Playfair Display', serif; font-size: clamp(26px, 5vw, 40px); font-weight: 700; text-align: center; color: #1A2744; margin-bottom: 4px; }
+    .section-heading { font-family: 'Playfair Display', serif; font-size: clamp(24px, 4vw, 38px); font-weight: 700; text-align: center; color: #1A2744; margin-bottom: 4px; }
     .section-heading em { color: #8B1A1A; font-style: italic; }
-    .section-sub { text-align: center; font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 3px; color: #8B7355; text-transform: uppercase; margin-bottom: 36px; }
+    .section-sub { text-align: center; font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 3px; color: #8B7355; text-transform: uppercase; margin-bottom: 32px; }
 
-    /* CARDS */
     .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
-    .card { background-color: #FBF4E2; border: 1px solid #D4B896; box-shadow: 4px 4px 0 #D4B896; overflow: hidden; opacity: 0; animation: fadeUp 0.45s ease forwards; transition: transform .2s, box-shadow .2s; }
+    .card { background-color: #FBF4E2; border: 1px solid #D4B896; box-shadow: 4px 4px 0 #D4B896; overflow: hidden; opacity: 0; animation: fadeUp .45s ease forwards; transition: transform .2s, box-shadow .2s; position: relative; }
     .card:nth-child(1){animation-delay:0s} .card:nth-child(2){animation-delay:.07s} .card:nth-child(3){animation-delay:.14s} .card:nth-child(4){animation-delay:.21s} .card:nth-child(5){animation-delay:.28s} .card:nth-child(6){animation-delay:.35s}
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
     .card:hover { transform: translate(-3px,-3px); box-shadow: 7px 7px 0 #C8962A; }
 
-    /* Card image */
-    .card-img-wrap { position: relative; height: 200px; overflow: hidden; background-color: #1A2744; display: flex; align-items: center; justify-content: center; }
+    .card-img-wrap { position: relative; height: 195px; overflow: hidden; background-color: #1A2744; }
     .card-img { width: 100%; height: 100%; object-fit: cover; display: block; filter: sepia(15%) contrast(1.05); transition: transform .4s ease; }
     .card:hover .card-img { transform: scale(1.04); }
-    .card-img-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(26,39,68,0.05) 0%, rgba(26,39,68,0.6) 100%); }
-    .card-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 15px; font-style: italic; color: rgba(240,227,197,0.4); letter-spacing: 2px; }
-    .card-stamp { position: absolute; bottom: 12px; left: 14px; font-family: 'Courier Prime', monospace; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #F0E3C5 !important; padding: 4px 10px; background-color: rgba(26,39,68,0.85); }
-    .card-price-badge { position: absolute; top: 12px; right: 12px; font-family: 'Courier Prime', monospace; font-size: 11px; font-weight: 700; color: #1A2744 !important; background-color: #C8962A; padding: 3px 9px; }
-    .card-body { padding: 18px 18px 20px; }
-    .card-name { font-family: 'Playfair Display', serif; font-size: 21px; font-weight: 700; line-height: 1.15; color: #1A2744; margin-bottom: 10px; }
-    .card-desc { font-size: 13px; line-height: 1.7; color: #2C1810; margin-bottom: 14px; }
-    .card-divider { height: 1px; background-color: #D4B896; margin-bottom: 12px; }
-    .card-info { margin-bottom: 10px; }
+    .card-img-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(26,39,68,.04) 0%, rgba(26,39,68,.6) 100%); }
+    .card-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 14px; font-style: italic; color: rgba(240,227,197,.35); letter-spacing: 2px; padding: 16px; text-align: center; }
+    .card-stamp { position: absolute; bottom: 12px; left: 12px; font-family: 'Courier Prime', monospace; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #F0E3C5; padding: 4px 10px; background-color: rgba(26,39,68,.85); }
+    .card-price-badge { position: absolute; top: 10px; right: 10px; font-family: 'Courier Prime', monospace; font-size: 11px; font-weight: 700; color: #1A2744; background-color: #C8962A; padding: 3px 8px; }
+
+    .card-body { padding: 16px 18px 6px; }
+    .card-name { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; line-height: 1.15; color: #1A2744; margin-bottom: 9px; }
+    .card-desc { font-size: 13px; line-height: 1.7; color: #2C1810; margin-bottom: 13px; }
+    .card-divider { height: 1px; background-color: #D4B896; margin-bottom: 11px; }
+    .card-info { margin-bottom: 9px; }
     .card-info-label { font-family: 'Courier Prime', monospace; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: #9B8565; margin-bottom: 2px; }
     .card-info-text { font-size: 13px; line-height: 1.45; color: #2C1810; }
 
-    /* FOOTER */
+    .card-actions { display: flex; border-top: 1px solid #D4B896; margin-top: 4px; }
+    .card-action-btn { flex: 1; background-color: transparent; border: none; border-right: 1px solid #D4B896; padding: 10px 8px; font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #9B8565; cursor: pointer; transition: all .18s; }
+    .card-action-btn:last-child { border-right: none; }
+    .card-action-btn:hover { background-color: #F0E3C5; color: #1A2744; }
+    .card-action-btn.bookmarked { color: #C8962A; font-weight: 700; }
+
+    .day-picker { display: none; position: absolute; background-color: #1A2744; border: 1.5px solid #C8962A; padding: 10px; z-index: 100; bottom: 48px; left: 50%; transform: translateX(-50%); white-space: nowrap; }
+    .day-picker.open { display: flex; gap: 6px; }
+    .day-pick-btn { background-color: transparent; border: 1px solid rgba(200,150,42,.5); color: #F0E3C5; font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 1px; padding: 6px 12px; cursor: pointer; transition: all .15s; }
+    .day-pick-btn:hover { background-color: #C8962A; color: #1A2744; }
+
+    .bookmarks-section { margin-top: 52px; }
+    .bookmarks-grid { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+    .bookmark-chip { display: flex; align-items: center; gap: 8px; background-color: #FBF4E2; border: 1px solid #D4B896; padding: 8px 14px; font-family: 'Courier Prime', monospace; font-size: 12px; color: #1A2744; }
+    .bookmark-chip-cat { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #9B8565; }
+    .bookmark-remove { background: none; border: none; color: #9B8565; cursor: pointer; font-size: 14px; line-height: 1; padding: 0 0 0 6px; }
+    .bookmark-remove:hover { color: #8B1A1A; }
+
+    .trip-section { margin-top: 52px; }
+    .trip-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px; }
+    .trip-day { background-color: #FBF4E2; border: 1px solid #D4B896; padding: 16px; min-height: 120px; }
+    .trip-day-title { font-family: 'Courier Prime', monospace; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #C8962A; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .trip-clear-btn { background: none; border: none; font-family: 'Courier Prime', monospace; font-size: 9px; letter-spacing: 1px; color: #9B8565; cursor: pointer; text-transform: uppercase; }
+    .trip-clear-btn:hover { color: #8B1A1A; }
+    .trip-spot { background-color: #F0E3C5; border-left: 3px solid #C8962A; padding: 7px 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .trip-spot-name { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; line-height: 1.2; color: #1A2744; }
+    .trip-spot-cat { font-family: 'Courier Prime', monospace; font-size: 9px; letter-spacing: 2px; color: #9B8565; text-transform: uppercase; margin-top: 1px; }
+    .trip-remove { background: none; border: none; color: #9B8565; font-size: 14px; cursor: pointer; padding: 0; }
+    .trip-remove:hover { color: #8B1A1A; }
+    .trip-empty { font-family: 'Courier Prime', monospace; font-size: 11px; color: rgba(26,39,68,.3); letter-spacing: 1px; text-align: center; padding: 20px 0; }
+
     .page-footer { text-align: center; border-top: 1px solid #D4B896; margin-top: 60px; padding: 28px 24px; font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: #B0906A; }
 
-    @media (max-width: 640px) {
-      .hero { padding: 32px 16px 40px; }
+    @media (max-width: 700px) {
+      .hero { padding: 30px 16px 38px; }
       .cards-grid { grid-template-columns: 1fr; }
+      .trip-grid { grid-template-columns: 1fr; }
       #map { height: 240px; }
-      .tab-btn { font-size: 10px; padding: 8px 12px; letter-spacing: 1px; }
+      .tab-btn { font-size: 10px; padding: 8px 12px; }
+      .info-bar { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -138,29 +159,19 @@
     <h1 class="hero-title">Hidden <em>Gems</em></h1>
     <p class="hero-tagline">- discover what the guidebooks miss -</p>
 
-    <!-- API KEYS -->
-    <div class="keys-wrap">
-      <div class="api-row">
-        <input type="password" id="apiKeyInput" class="api-input" placeholder="Anthropic API key (console.anthropic.com)..." autocomplete="off"/>
-        <button class="api-save-btn" id="apiSaveBtn">SAVE</button>
-      </div>
-      <div class="api-row">
-        <input type="password" id="pexelsKeyInput" class="api-input" placeholder="Pexels photo API key (pexels.com/api) — free..." autocomplete="off"/>
-        <button class="api-save-btn" id="pexelsSaveBtn">SAVE</button>
-      </div>
-      <p class="key-status missing" id="keyStatus">Both keys needed — free at console.anthropic.com &amp; pexels.com/api</p>
-    </div>
-
     <div class="picker-wrap">
-      <div class="tab-row">
-        <button class="tab-btn active" data-tab="map">MAP</button>
-        <button class="tab-btn" data-tab="browse">BROWSE</button>
-        <button class="tab-btn" data-tab="type">TYPE</button>
+      <div class="picker-top-row">
+        <div class="tab-row">
+          <button class="tab-btn active" data-tab="map">MAP</button>
+          <button class="tab-btn" data-tab="browse">BROWSE</button>
+          <button class="tab-btn" data-tab="type">TYPE</button>
+        </div>
+        <button class="surprise-btn" id="surpriseBtn">SURPRISE ME</button>
       </div>
 
       <div class="tab-panel active" id="tab-map">
         <div id="map"></div>
-        <p class="map-hint">Click anywhere on the map to select a city</p>
+        <p class="map-hint">Click anywhere on the map to drop a pin and detect the city</p>
         <p class="map-selected" id="mapSelected"></p>
       </div>
 
@@ -189,158 +200,159 @@
       <div class="state-box">
         <span class="state-icon" id="stateIcon">🗺️</span>
         <div class="state-title" id="stateTitle">Where shall we explore?</div>
-        <div class="state-sub" id="stateSub">Save your keys, pick a city, and choose a vibe.</div>
+        <div class="state-sub" id="stateSub">Pick a city from the map, browse the list, or just type one.</div>
         <div class="error-box hidden" id="errorBox">
-          <strong>Error:</strong>
-          <span id="errorText"></span>
+          <strong>Error:</strong><span id="errorText"></span>
         </div>
       </div>
     </div>
 
     <div id="resultsArea" class="hidden">
+      <div class="info-bar">
+        <div class="info-item">
+          <div class="info-label">City</div>
+          <div class="info-value" id="infoCityName"></div>
+          <div class="info-sub" id="infoVibe"></div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Weather Right Now</div>
+          <div class="info-value" id="infoWeather">Loading...</div>
+          <div class="info-sub" id="infoWeatherSub"></div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Best Time to Visit</div>
+          <div class="info-value" id="infoBestTime" style="font-size:13px;line-height:1.4;"></div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Currency</div>
+          <div class="info-value" id="infoCurrency">Loading...</div>
+          <div class="info-sub" id="infoCurrencySub"></div>
+        </div>
+      </div>
+
       <div class="section-rule">+</div>
       <h2 class="section-heading">Your curated guide to <em id="cityLabel"></em></h2>
       <p class="section-sub" id="vibeLabel"></p>
       <div class="cards-grid" id="cardsGrid"></div>
+
+      <div class="bookmarks-section hidden" id="bookmarksSection">
+        <div class="section-rule">+</div>
+        <h2 class="section-heading" style="font-size:26px;">Saved <em>Places</em></h2>
+        <div class="bookmarks-grid" id="bookmarksGrid"></div>
+      </div>
+
+      <div class="trip-section hidden" id="tripSection">
+        <div class="section-rule">+</div>
+        <h2 class="section-heading" style="font-size:26px;">Your <em>Itinerary</em></h2>
+        <p class="section-sub">Add spots to your day-by-day trip plan</p>
+        <div class="trip-grid" id="tripGrid"></div>
+      </div>
     </div>
 
-    <footer class="page-footer">
-      HIDDEN GEMS . EVERY CITY HAS A STORY . EST. 2025
-    </footer>
+    <footer class="page-footer">HIDDEN GEMS . EVERY CITY HAS A STORY . EST. 2025</footer>
   </main>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
+    var API_BASE = "/api/proxy";
+
     var VIBES = ["Chill","Adventurous","Budget","Fancy","Local","Romantic"];
 
+    var WEATHER_CODES = {
+      0:"Clear sky",1:"Mostly clear",2:"Partly cloudy",3:"Overcast",
+      45:"Foggy",48:"Icy fog",51:"Light drizzle",53:"Drizzle",55:"Heavy drizzle",
+      61:"Light rain",63:"Rain",65:"Heavy rain",71:"Light snow",73:"Snow",75:"Heavy snow",
+      80:"Rain showers",81:"Heavy showers",82:"Violent showers",95:"Thunderstorm",99:"Thunderstorm + hail"
+    };
+
     var CITIES = {
-      "USA": ["New York City","Los Angeles","Chicago","Miami","Las Vegas","San Francisco","New Orleans","Seattle","Atlanta","Boston","Nashville","Austin","Denver","Portland","Washington DC"],
-      "UK": ["London","Manchester","Edinburgh","Liverpool","Bristol","Birmingham","Glasgow"],
-      "France": ["Paris","Lyon","Marseille","Nice","Bordeaux","Strasbourg"],
-      "Italy": ["Rome","Milan","Florence","Venice","Naples","Bologna"],
-      "Spain": ["Barcelona","Madrid","Seville","Valencia","Granada"],
-      "Germany": ["Berlin","Munich","Hamburg","Cologne","Frankfurt"],
-      "Japan": ["Tokyo","Osaka","Kyoto","Hiroshima","Sapporo","Fukuoka","Nara"],
-      "South Korea": ["Seoul","Busan","Jeju"],
-      "China": ["Shanghai","Beijing","Hong Kong","Chengdu","Guangzhou"],
-      "Thailand": ["Bangkok","Chiang Mai","Phuket","Koh Samui"],
-      "Vietnam": ["Ho Chi Minh City","Hanoi","Hoi An","Da Nang"],
-      "Australia": ["Sydney","Melbourne","Brisbane","Perth","Adelaide","Cairns"],
-      "New Zealand": ["Auckland","Wellington","Queenstown"],
-      "Canada": ["Toronto","Vancouver","Montreal","Calgary","Quebec City"],
-      "Mexico": ["Mexico City","Cancun","Guadalajara","Oaxaca","Tulum"],
-      "Brazil": ["Rio de Janeiro","Sao Paulo","Salvador","Florianopolis"],
-      "Argentina": ["Buenos Aires","Mendoza","Bariloche"],
-      "South Africa": ["Cape Town","Johannesburg","Durban"],
-      "Morocco": ["Marrakech","Fes","Casablanca","Chefchaouen"],
-      "India": ["Mumbai","Delhi","Jaipur","Goa","Bengaluru","Varanasi","Udaipur"],
-      "UAE": ["Dubai","Abu Dhabi"],
-      "Singapore": ["Singapore"],
-      "Indonesia": ["Bali","Jakarta","Yogyakarta","Lombok"],
-      "Portugal": ["Lisbon","Porto","Algarve","Sintra"],
-      "Greece": ["Athens","Santorini","Mykonos","Thessaloniki"],
-      "Turkey": ["Istanbul","Cappadocia","Antalya","Bodrum"],
-      "Netherlands": ["Amsterdam","Rotterdam","Utrecht"],
-      "Switzerland": ["Zurich","Geneva","Interlaken","Lucerne"],
-      "Austria": ["Vienna","Salzburg","Innsbruck"],
-      "Poland": ["Warsaw","Krakow","Gdansk"],
-      "Czech Republic": ["Prague","Brno"],
-      "Hungary": ["Budapest"],
-      "Norway": ["Oslo","Bergen","Tromso"],
-      "Sweden": ["Stockholm","Gothenburg"],
-      "Iceland": ["Reykjavik"],
-      "Peru": ["Lima","Cusco","Arequipa"],
-      "Colombia": ["Medellin","Bogota","Cartagena"],
-      "Philippines": ["Manila","Cebu","Palawan"],
-      "Malaysia": ["Kuala Lumpur","Penang","Langkawi"],
-      "Nepal": ["Kathmandu","Pokhara"],
-      "Jamaica": ["Kingston","Montego Bay","Negril"],
-      "Cuba": ["Havana","Trinidad"]
+      "USA":["New York City","Los Angeles","Chicago","Miami","Las Vegas","San Francisco","New Orleans","Seattle","Atlanta","Boston","Nashville","Austin","Denver","Portland","Washington DC","Phoenix"],
+      "UK":["London","Manchester","Edinburgh","Liverpool","Bristol","Birmingham","Glasgow","Bath","Oxford"],
+      "France":["Paris","Lyon","Marseille","Nice","Bordeaux","Strasbourg","Toulouse"],
+      "Italy":["Rome","Milan","Florence","Venice","Naples","Bologna","Palermo","Turin"],
+      "Spain":["Barcelona","Madrid","Seville","Valencia","Granada","Bilbao","Malaga"],
+      "Germany":["Berlin","Munich","Hamburg","Cologne","Frankfurt","Dresden","Stuttgart"],
+      "Japan":["Tokyo","Osaka","Kyoto","Hiroshima","Sapporo","Fukuoka","Nara","Nagoya"],
+      "South Korea":["Seoul","Busan","Jeju","Incheon","Daegu"],
+      "China":["Shanghai","Beijing","Hong Kong","Chengdu","Guangzhou","Xian","Shenzhen"],
+      "Thailand":["Bangkok","Chiang Mai","Phuket","Koh Samui","Pai","Chiang Rai"],
+      "Vietnam":["Ho Chi Minh City","Hanoi","Hoi An","Da Nang","Hue","Nha Trang"],
+      "Australia":["Sydney","Melbourne","Brisbane","Perth","Adelaide","Cairns","Gold Coast"],
+      "New Zealand":["Auckland","Wellington","Queenstown","Christchurch","Rotorua"],
+      "Canada":["Toronto","Vancouver","Montreal","Calgary","Quebec City","Ottawa","Halifax"],
+      "Mexico":["Mexico City","Cancun","Guadalajara","Oaxaca","Tulum","San Miguel de Allende","Merida"],
+      "Brazil":["Rio de Janeiro","Sao Paulo","Salvador","Florianopolis","Recife","Fortaleza"],
+      "Argentina":["Buenos Aires","Mendoza","Bariloche","Cordoba","Salta"],
+      "South Africa":["Cape Town","Johannesburg","Durban","Stellenbosch"],
+      "Morocco":["Marrakech","Fes","Casablanca","Chefchaouen","Tangier","Essaouira"],
+      "India":["Mumbai","Delhi","Jaipur","Goa","Bengaluru","Varanasi","Udaipur","Kolkata"],
+      "UAE":["Dubai","Abu Dhabi"],
+      "Singapore":["Singapore"],
+      "Indonesia":["Bali","Jakarta","Yogyakarta","Lombok"],
+      "Portugal":["Lisbon","Porto","Algarve","Sintra","Madeira"],
+      "Greece":["Athens","Santorini","Mykonos","Thessaloniki","Crete","Rhodes"],
+      "Turkey":["Istanbul","Cappadocia","Antalya","Bodrum","Izmir"],
+      "Netherlands":["Amsterdam","Rotterdam","Utrecht","The Hague"],
+      "Switzerland":["Zurich","Geneva","Interlaken","Lucerne","Zermatt"],
+      "Austria":["Vienna","Salzburg","Innsbruck","Hallstatt"],
+      "Poland":["Warsaw","Krakow","Gdansk","Wroclaw"],
+      "Czech Republic":["Prague","Brno","Cesky Krumlov"],
+      "Hungary":["Budapest","Pecs","Debrecen"],
+      "Norway":["Oslo","Bergen","Tromso","Flam"],
+      "Sweden":["Stockholm","Gothenburg","Malmo"],
+      "Iceland":["Reykjavik","Akureyri"],
+      "Peru":["Lima","Cusco","Arequipa"],
+      "Colombia":["Medellin","Bogota","Cartagena","Cali"],
+      "Philippines":["Manila","Cebu","Palawan","Boracay"],
+      "Malaysia":["Kuala Lumpur","Penang","Langkawi","Kota Kinabalu"],
+      "Nepal":["Kathmandu","Pokhara"],
+      "Jamaica":["Kingston","Montego Bay","Negril"],
+      "Cuba":["Havana","Trinidad","Varadero"],
+      "Egypt":["Cairo","Alexandria","Luxor","Aswan"],
+      "Kenya":["Nairobi","Mombasa"],
+      "Tanzania":["Dar es Salaam","Zanzibar","Arusha"]
     };
 
     var CAT_COLORS = {
-      Food:"#8B1A1A", Explore:"#1A3A4A", Nightlife:"#2A1A4A",
-      Nature:"#1A3A1A", Culture:"#4A2A1A", Shop:"#3A1A3A"
+      Food:"#8B1A1A",Explore:"#1A3A4A",Nightlife:"#2A1A4A",
+      Nature:"#1A3A1A",Culture:"#4A2A1A",Shop:"#3A1A3A"
     };
 
     var selectedVibe = "Chill";
     var selectedCity = "";
     var activeTab    = "map";
-    var apiKey       = localStorage.getItem("hg_api_key")    || "";
-    var pexelsKey    = localStorage.getItem("hg_pexels_key") || "";
     var mapMarker    = null;
+    var bookmarks    = JSON.parse(localStorage.getItem("hg_bookmarks") || "[]");
+    var tripDays     = JSON.parse(localStorage.getItem("hg_trip") || '{"1":[],"2":[],"3":[]}');
 
-    /* DOM */
-    var exploreBtn    = document.getElementById("exploreBtn");
-    var vibesRow      = document.getElementById("vibesRow");
-    var apiKeyInput   = document.getElementById("apiKeyInput");
-    var apiSaveBtn    = document.getElementById("apiSaveBtn");
-    var pexelsKeyInput= document.getElementById("pexelsKeyInput");
-    var pexelsSaveBtn = document.getElementById("pexelsSaveBtn");
-    var keyStatus     = document.getElementById("keyStatus");
-    var stateArea     = document.getElementById("stateArea");
-    var resultsArea   = document.getElementById("resultsArea");
-    var cardsGrid     = document.getElementById("cardsGrid");
-    var cityLabel     = document.getElementById("cityLabel");
-    var vibeLabel     = document.getElementById("vibeLabel");
-    var stateIcon     = document.getElementById("stateIcon");
-    var stateTitle    = document.getElementById("stateTitle");
-    var stateSub      = document.getElementById("stateSub");
-    var errorBox      = document.getElementById("errorBox");
-    var errorText     = document.getElementById("errorText");
-    var mapSelected   = document.getElementById("mapSelected");
-    var countrySearch = document.getElementById("countrySearch");
-    var countriesList = document.getElementById("countriesList");
-    var cityTypeInput = document.getElementById("cityTypeInput");
-
-    /* KEY STATUS */
-    function updateKeyStatus() {
-      if (apiKey && pexelsKey) {
-        keyStatus.textContent = "Both keys loaded. Ready to explore!";
-        keyStatus.className = "key-status ok";
-      } else if (apiKey) {
-        keyStatus.textContent = "Anthropic key loaded. Add Pexels key for photos.";
-        keyStatus.className = "key-status ok";
-      } else {
-        keyStatus.textContent = "Both keys needed — free at console.anthropic.com & pexels.com/api";
-        keyStatus.className = "key-status missing";
-      }
-    }
-
-    function saveApiKey() {
-      var val = apiKeyInput.value.trim();
-      if (!val) { alert("Paste your Anthropic API key first."); return; }
-      apiKey = val;
-      localStorage.setItem("hg_api_key", val);
-      apiKeyInput.value = "";
-      updateKeyStatus();
-    }
-
-    function savePexelsKey() {
-      var val = pexelsKeyInput.value.trim();
-      if (!val) { alert("Paste your Pexels API key first."); return; }
-      pexelsKey = val;
-      localStorage.setItem("hg_pexels_key", val);
-      pexelsKeyInput.value = "";
-      updateKeyStatus();
-    }
-
-    /* FETCH PEXELS IMAGE */
-    async function fetchPexelsImage(query) {
-      if (!pexelsKey) return null;
-      try {
-        var res = await fetch(
-          "https://api.pexels.com/v1/search?query=" + encodeURIComponent(query) + "&per_page=5&orientation=landscape",
-          { headers: { "Authorization": pexelsKey } }
-        );
-        var data = await res.json();
-        if (data.photos && data.photos.length > 0) {
-          var idx = Math.floor(Math.random() * data.photos.length);
-          return data.photos[idx].src.medium;
-        }
-      } catch(e) {}
-      return null;
-    }
+    var exploreBtn     = document.getElementById("exploreBtn");
+    var surpriseBtn    = document.getElementById("surpriseBtn");
+    var vibesRow       = document.getElementById("vibesRow");
+    var stateArea      = document.getElementById("stateArea");
+    var resultsArea    = document.getElementById("resultsArea");
+    var cardsGrid      = document.getElementById("cardsGrid");
+    var cityLabel      = document.getElementById("cityLabel");
+    var vibeLabel      = document.getElementById("vibeLabel");
+    var stateIcon      = document.getElementById("stateIcon");
+    var stateTitle     = document.getElementById("stateTitle");
+    var stateSub       = document.getElementById("stateSub");
+    var errorBox       = document.getElementById("errorBox");
+    var errorText      = document.getElementById("errorText");
+    var mapSelected    = document.getElementById("mapSelected");
+    var countrySearch  = document.getElementById("countrySearch");
+    var countriesList  = document.getElementById("countriesList");
+    var cityTypeInput  = document.getElementById("cityTypeInput");
+    var infoCityName   = document.getElementById("infoCityName");
+    var infoVibe       = document.getElementById("infoVibe");
+    var infoWeather    = document.getElementById("infoWeather");
+    var infoWeatherSub = document.getElementById("infoWeatherSub");
+    var infoBestTime   = document.getElementById("infoBestTime");
+    var infoCurrency   = document.getElementById("infoCurrency");
+    var infoCurrencySub= document.getElementById("infoCurrencySub");
+    var bookmarksSection = document.getElementById("bookmarksSection");
+    var bookmarksGrid  = document.getElementById("bookmarksGrid");
+    var tripSection    = document.getElementById("tripSection");
+    var tripGrid       = document.getElementById("tripGrid");
 
     /* TABS */
     document.querySelectorAll(".tab-btn").forEach(function(btn) {
@@ -350,33 +362,36 @@
         document.querySelectorAll(".tab-panel").forEach(function(p){ p.classList.remove("active"); });
         btn.classList.add("active");
         document.getElementById("tab-" + activeTab).classList.add("active");
-        if (activeTab === "map") { setTimeout(function(){ leafletMap.invalidateSize(); }, 100); }
+        if (activeTab === "map") setTimeout(function(){ leafletMap.invalidateSize(); }, 100);
       });
     });
 
-    /* MAP */
+    /* MAP — Esri dark tiles with English labels */
     var leafletMap = L.map("map", { zoomControl: true }).setView([20, 10], 2);
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      attribution: "OpenStreetMap | CARTO", maxZoom: 18
+
+    // Base dark layer (no labels)
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
+      attribution: "Esri, HERE, Garmin", maxZoom: 16
+    }).addTo(leafletMap);
+
+    // English label overlay on top
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}", {
+      attribution: "", maxZoom: 16, opacity: 1
     }).addTo(leafletMap);
 
     leafletMap.on("click", async function(e) {
-      var lat = e.latlng.lat, lon = e.latlng.lng;
       if (mapMarker) leafletMap.removeLayer(mapMarker);
-      mapMarker = L.marker([lat, lon]).addTo(leafletMap);
+      mapMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(leafletMap);
       mapSelected.textContent = "Locating city...";
       try {
-        var res = await fetch("https://nominatim.openstreetmap.org/reverse?lat=" + lat + "&lon=" + lon + "&format=json&zoom=10", { headers: { "Accept-Language": "en" } });
+        var res = await fetch("https://nominatim.openstreetmap.org/reverse?lat=" + e.latlng.lat + "&lon=" + e.latlng.lng + "&format=json&zoom=10", { headers: { "Accept-Language": "en" } });
         var data = await res.json();
         var a = data.address || {};
         var city = a.city || a.town || a.village || a.county || a.state || data.display_name.split(",")[0];
-        var country = a.country || "";
-        selectedCity = city + (country ? ", " + country : "");
+        selectedCity = city + (a.country ? ", " + a.country : "");
         mapSelected.textContent = "Selected: " + selectedCity;
         document.querySelectorAll(".city-chip").forEach(function(c){ c.classList.remove("selected"); });
-      } catch(e) {
-        mapSelected.textContent = "Could not detect city. Try again.";
-      }
+      } catch(e) { mapSelected.textContent = "Could not detect city. Try again."; }
     });
 
     /* BROWSE */
@@ -384,35 +399,25 @@
       countriesList.innerHTML = "";
       var f = (filter || "").toLowerCase();
       Object.keys(CITIES).forEach(function(country) {
-        var cities = CITIES[country].filter(function(c) {
-          return !f || c.toLowerCase().includes(f) || country.toLowerCase().includes(f);
-        });
+        var cities = CITIES[country].filter(function(c){ return !f || c.toLowerCase().includes(f) || country.toLowerCase().includes(f); });
         if (!cities.length) return;
-        var block = document.createElement("div");
-        block.className = "country-block";
-        var label = document.createElement("div");
-        label.className = "country-label";
-        label.textContent = country;
-        block.appendChild(label);
-        var chips = document.createElement("div");
-        chips.className = "city-chips";
+        var block = document.createElement("div"); block.className = "country-block";
+        var lbl = document.createElement("div"); lbl.className = "country-label"; lbl.textContent = country;
+        block.appendChild(lbl);
+        var chips = document.createElement("div"); chips.className = "city-chips";
         cities.forEach(function(city) {
-          var chip = document.createElement("button");
-          chip.className = "city-chip";
-          chip.textContent = city;
+          var chip = document.createElement("button"); chip.className = "city-chip"; chip.textContent = city;
           chip.addEventListener("click", function() {
             document.querySelectorAll(".city-chip").forEach(function(c){ c.classList.remove("selected"); });
-            chip.classList.add("selected");
-            selectedCity = city;
+            chip.classList.add("selected"); selectedCity = city;
           });
           chips.appendChild(chip);
         });
-        block.appendChild(chips);
-        countriesList.appendChild(block);
+        block.appendChild(chips); countriesList.appendChild(block);
       });
     }
     buildBrowse();
-    countrySearch.addEventListener("input", function() { buildBrowse(countrySearch.value); });
+    countrySearch.addEventListener("input", function(){ buildBrowse(countrySearch.value); });
 
     /* VIBES */
     function buildVibes() {
@@ -423,146 +428,237 @@
         btn.textContent = v;
         btn.addEventListener("click", function() {
           selectedVibe = v;
-          document.querySelectorAll(".vibe-btn").forEach(function(b){
-            b.classList.toggle("active", b.textContent === v);
-          });
+          document.querySelectorAll(".vibe-btn").forEach(function(b){ b.classList.toggle("active", b.textContent === v); });
         });
         vibesRow.appendChild(btn);
       });
     }
 
+    /* SURPRISE ME */
+    surpriseBtn.addEventListener("click", function() {
+      var countries = Object.keys(CITIES);
+      var country = countries[Math.floor(Math.random() * countries.length)];
+      var cities = CITIES[country];
+      var city = cities[Math.floor(Math.random() * cities.length)];
+      selectedCity = city;
+      activeTab = "type";
+      document.querySelectorAll(".tab-btn").forEach(function(b){ b.classList.toggle("active", b.dataset.tab === "type"); });
+      document.querySelectorAll(".tab-panel").forEach(function(p){ p.classList.remove("active"); });
+      document.getElementById("tab-type").classList.add("active");
+      cityTypeInput.value = city;
+      fetchGems(city);
+    });
+
     /* STATE */
     function showState(icon, title, sub, spinning, errMsg) {
-      stateIcon.textContent = icon;
-      stateIcon.className = "state-icon" + (spinning ? " spinning" : "");
-      stateTitle.textContent = title;
-      stateSub.textContent = sub;
-      stateArea.classList.remove("hidden");
-      resultsArea.classList.add("hidden");
+      stateIcon.textContent = icon; stateIcon.className = "state-icon" + (spinning ? " spinning" : "");
+      stateTitle.textContent = title; stateSub.textContent = sub;
+      stateArea.classList.remove("hidden"); resultsArea.classList.add("hidden");
       if (errMsg) { errorBox.classList.remove("hidden"); errorText.textContent = errMsg; }
-      else { errorBox.classList.add("hidden"); }
+      else errorBox.classList.add("hidden");
     }
 
-    /* GET CITY */
-    function getCity() {
-      if (activeTab === "type") return cityTypeInput.value.trim();
-      return selectedCity;
+    function getCity() { return activeTab === "type" ? cityTypeInput.value.trim() : selectedCity; }
+    function esc(s) { var d = document.createElement("div"); d.textContent = String(s||""); return d.innerHTML; }
+
+    /* WEATHER */
+    async function fetchWeather(cityName) {
+      try {
+        var geo = await fetch("https://nominatim.openstreetmap.org/search?q=" + encodeURIComponent(cityName) + "&format=json&limit=1", { headers: { "Accept-Language": "en" } });
+        var gd = await geo.json();
+        if (!gd.length) { infoWeather.textContent = "N/A"; return; }
+        var wr = await fetch("https://api.open-meteo.com/v1/forecast?latitude=" + gd[0].lat + "&longitude=" + gd[0].lon + "&current=temperature_2m,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph");
+        var wd = await wr.json();
+        var cur = wd.current;
+        infoWeather.textContent = Math.round(cur.temperature_2m) + "°F";
+        infoWeatherSub.textContent = (WEATHER_CODES[cur.weather_code] || "Unknown") + "  |  Wind " + Math.round(cur.wind_speed_10m) + " mph";
+      } catch(e) { infoWeather.textContent = "Unavailable"; }
     }
 
-    /* ESCAPE */
-    function esc(str) {
-      var d = document.createElement("div");
-      d.textContent = String(str || "");
-      return d.innerHTML;
+    /* CURRENCY */
+    async function fetchCurrency(code) {
+      if (!code || code === "USD") { infoCurrency.textContent = "USD"; infoCurrencySub.textContent = "US Dollar"; return; }
+      try {
+        var res = await fetch("https://api.frankfurter.app/latest?from=USD&to=" + code);
+        var data = await res.json();
+        var rate = data.rates[code];
+        infoCurrency.textContent = rate ? "1 USD = " + parseFloat(rate.toFixed(2)) + " " + code : code;
+        infoCurrencySub.textContent = "Live exchange rate";
+      } catch(e) { infoCurrency.textContent = code || "N/A"; }
+    }
+
+    /* PEXELS */
+    async function fetchPexelsImage(query) {
+      try {
+        var res = await fetch(API_BASE, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ service: "pexels", query: query })
+        });
+        var data = await res.json();
+        if (data.photos && data.photos.length > 0)
+          return data.photos[Math.floor(Math.random() * data.photos.length)].src.medium;
+      } catch(e) {}
+      return null;
+    }
+
+    /* BOOKMARKS */
+    function saveBookmarks() { localStorage.setItem("hg_bookmarks", JSON.stringify(bookmarks)); }
+    function renderBookmarks() {
+      bookmarksGrid.innerHTML = "";
+      if (!bookmarks.length) { bookmarksSection.classList.add("hidden"); return; }
+      bookmarksSection.classList.remove("hidden");
+      bookmarks.forEach(function(spot, i) {
+        var chip = document.createElement("div"); chip.className = "bookmark-chip";
+        chip.innerHTML = "<div><div style='font-family:Playfair Display,serif;font-weight:700;font-size:14px;'>" + esc(spot.name) + "</div><div class='bookmark-chip-cat'>" + esc(spot.category) + " . " + esc(spot.city) + "</div></div><button class='bookmark-remove' data-i='" + i + "'>x</button>";
+        bookmarksGrid.appendChild(chip);
+      });
+      bookmarksGrid.querySelectorAll(".bookmark-remove").forEach(function(btn) {
+        btn.addEventListener("click", function() { bookmarks.splice(parseInt(btn.dataset.i),1); saveBookmarks(); renderBookmarks(); });
+      });
+    }
+
+    /* TRIP PLANNER */
+    function saveTrip() { localStorage.setItem("hg_trip", JSON.stringify(tripDays)); }
+    function renderTrip() {
+      var hasItems = tripDays["1"].length || tripDays["2"].length || tripDays["3"].length;
+      if (!hasItems) { tripSection.classList.add("hidden"); return; }
+      tripSection.classList.remove("hidden");
+      tripGrid.innerHTML = "";
+      [1,2,3].forEach(function(day) {
+        var col = document.createElement("div"); col.className = "trip-day";
+        col.innerHTML = "<div class='trip-day-title'>Day " + day + "<button class='trip-clear-btn' data-day='" + day + "'>Clear</button></div>";
+        if (!tripDays[day].length) { col.innerHTML += "<div class='trip-empty'>No spots yet</div>"; }
+        else {
+          tripDays[day].forEach(function(spot, i) {
+            var item = document.createElement("div"); item.className = "trip-spot";
+            item.innerHTML = "<div><div class='trip-spot-name'>" + esc(spot.name) + "</div><div class='trip-spot-cat'>" + esc(spot.category) + "</div></div><button class='trip-remove' data-day='" + day + "' data-i='" + i + "'>x</button>";
+            col.appendChild(item);
+          });
+        }
+        tripGrid.appendChild(col);
+      });
+      tripGrid.querySelectorAll(".trip-clear-btn").forEach(function(btn) {
+        btn.addEventListener("click", function() { tripDays[btn.dataset.day]=[]; saveTrip(); renderTrip(); });
+      });
+      tripGrid.querySelectorAll(".trip-remove").forEach(function(btn) {
+        btn.addEventListener("click", function() { tripDays[btn.dataset.day].splice(parseInt(btn.dataset.i),1); saveTrip(); renderTrip(); });
+      });
+    }
+
+    /* RENDER CARDS */
+    function renderCards(spots, city, images) {
+      cardsGrid.innerHTML = "";
+      spots.forEach(function(spot, i) {
+        var color = CAT_COLORS[spot.category] || "#1A2744";
+        var isBookmarked = bookmarks.some(function(b){ return b.name === spot.name; });
+        var card = document.createElement("article"); card.className = "card";
+        var imgHtml = images[i]
+          ? "<img class='card-img' src='" + images[i] + "' alt='" + esc(spot.name) + "' loading='lazy'/><div class='card-img-overlay'></div>"
+          : "<div class='card-img-placeholder'>" + esc(spot.name) + "</div>";
+        card.innerHTML =
+          "<div class='card-img-wrap' style='background-color:" + color + ";'>" + imgHtml +
+            "<div class='card-stamp'>" + esc(spot.category) + "</div>" +
+            "<div class='card-price-badge'>" + esc(spot.priceRange) + "</div>" +
+          "</div>" +
+          "<div class='card-body'>" +
+            "<div class='card-name'>" + esc(spot.name) + "</div>" +
+            "<p class='card-desc'>" + esc(spot.description) + "</p>" +
+            "<div class='card-divider'></div>" +
+            "<div class='card-info'><div class='card-info-label'>MUST TRY</div><div class='card-info-text'>" + esc(spot.mustTry) + "</div></div>" +
+            "<div class='card-info'><div class='card-info-label'>INSIDER TIP</div><div class='card-info-text'>" + esc(spot.tip) + "</div></div>" +
+          "</div>" +
+          "<div class='card-actions'>" +
+            "<button class='card-action-btn bookmark-btn" + (isBookmarked ? " bookmarked" : "") + "' data-i='" + i + "'>" + (isBookmarked ? "SAVED" : "SAVE") + "</button>" +
+            "<button class='card-action-btn trip-btn' data-i='" + i + "'>ADD TO TRIP</button>" +
+          "</div>" +
+          "<div class='day-picker' id='daypicker-" + i + "'>" +
+            "<button class='day-pick-btn' data-day='1' data-i='" + i + "'>Day 1</button>" +
+            "<button class='day-pick-btn' data-day='2' data-i='" + i + "'>Day 2</button>" +
+            "<button class='day-pick-btn' data-day='3' data-i='" + i + "'>Day 3</button>" +
+          "</div>";
+        cardsGrid.appendChild(card);
+
+        card.querySelector(".bookmark-btn").addEventListener("click", function() {
+          var idx = bookmarks.findIndex(function(b){ return b.name === spot.name; });
+          if (idx > -1) { bookmarks.splice(idx,1); this.textContent="SAVE"; this.classList.remove("bookmarked"); }
+          else { bookmarks.push({ name:spot.name, category:spot.category, city:city }); this.textContent="SAVED"; this.classList.add("bookmarked"); }
+          saveBookmarks(); renderBookmarks();
+        });
+
+        card.querySelector(".trip-btn").addEventListener("click", function() {
+          var picker = document.getElementById("daypicker-" + i);
+          document.querySelectorAll(".day-picker").forEach(function(p){ if(p!==picker) p.classList.remove("open"); });
+          picker.classList.toggle("open");
+        });
+
+        card.querySelectorAll(".day-pick-btn").forEach(function(btn) {
+          btn.addEventListener("click", function() {
+            var day = btn.dataset.day;
+            if (!tripDays[day].some(function(s){ return s.name===spot.name; }))
+              tripDays[day].push({ name:spot.name, category:spot.category });
+            saveTrip(); renderTrip();
+            document.getElementById("daypicker-" + i).classList.remove("open");
+          });
+        });
+      });
+
+      document.addEventListener("click", function(e) {
+        if (!e.target.classList.contains("trip-btn") && !e.target.classList.contains("day-pick-btn"))
+          document.querySelectorAll(".day-picker").forEach(function(p){ p.classList.remove("open"); });
+      });
     }
 
     /* FETCH GEMS */
     async function fetchGems(city) {
-      showState("🧭", "Exploring " + city + "...", "Consulting the local archives...", true, null);
-      exploreBtn.disabled = true;
-      exploreBtn.textContent = "SEARCHING...";
+      showState("🧭","Exploring " + city + "...","Consulting the local archives...",true,null);
+      exploreBtn.disabled=true; exploreBtn.textContent="SEARCHING...";
 
-      var prompt = "You are a local travel expert. List exactly 6 hidden gem spots in " + city + " for a \"" + selectedVibe + "\" vibe traveler. Real, specific, lesser-known places only — no tourist traps.\n\nReturn ONLY a valid JSON array. No markdown, no backticks, no extra text. Start with [ end with ].\n\nSchema (all fields required):\n[{\"name\":\"Place Name\",\"category\":\"Food\",\"description\":\"Two vivid sentences about this place.\",\"tip\":\"One insider secret only locals know.\",\"priceRange\":\"$$\",\"mustTry\":\"Best specific thing to do or order here.\",\"imageQuery\":\"short 3-4 word phrase to search for a photo of this type of place e.g. rooftop bar city night\"}]\n\ncategory must be one of: Food, Explore, Nightlife, Nature, Culture, Shop\npriceRange must be one of: $, $$, $$$, $$$$";
+      var prompt = "You are an expert local travel guide. List exactly 6 hidden gem spots in " + city + " for a \"" + selectedVibe + "\" vibe traveler. Real, specific, lesser-known places only.\n\nReturn ONLY a valid JSON object. No markdown, no backticks, no extra text. Start with { end with }.\n\nExact schema:\n{\"bestTimeToVisit\":\"One concise sentence.\",\"currency\":\"3-letter ISO code e.g. JPY\",\"currencyName\":\"e.g. Japanese Yen\",\"spots\":[{\"name\":\"Place Name\",\"category\":\"Food\",\"description\":\"Two vivid sentences.\",\"tip\":\"One insider secret.\",\"priceRange\":\"$$\",\"mustTry\":\"Best thing here.\",\"imageQuery\":\"3-4 word photo search phrase\"}]}\n\ncategory: Food|Explore|Nightlife|Nature|Culture|Shop\npriceRange: $|$$|$$$|$$$$";
 
       try {
-        var res = await fetch("https://api.anthropic.com/v1/messages", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": apiKey,
-            "anthropic-version": "2023-06-01",
-            "anthropic-dangerous-direct-browser-access": "true"
-          },
-          body: JSON.stringify({
-            model: "claude-haiku-4-5-20251001",
-            max_tokens: 1600,
-            messages: [{ role: "user", content: prompt }]
-          })
+        var res = await fetch(API_BASE, {
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ service:"anthropic", payload:{ model:"claude-haiku-4-5-20251001", max_tokens:1800, messages:[{role:"user",content:prompt}] }})
         });
-
         var data = await res.json();
-        if (!res.ok) {
-          var msg = (data.error && data.error.message) ? data.error.message : "HTTP " + res.status;
-          throw new Error(res.status + ": " + msg);
-        }
+        if (!res.ok) throw new Error((data.error&&data.error.message)?data.error.message:"HTTP "+res.status);
+        var raw = data.content[0].text.replace(/```json|```/g,"").trim();
+        var parsed = JSON.parse(raw);
+        var spots = parsed.spots;
 
-        var raw = data.content[0].text.replace(/```json|```/g, "").trim();
-        var spots = JSON.parse(raw);
-
-        cardsGrid.innerHTML = "";
+        infoCityName.textContent = city;
+        infoVibe.textContent = selectedVibe + " Vibe";
+        infoBestTime.textContent = parsed.bestTimeToVisit || "Ask locally";
         cityLabel.textContent = city;
         vibeLabel.textContent = selectedVibe.toUpperCase() + " VIBE  .  " + spots.length + " HIDDEN GEMS";
 
-        /* Build cards, fetch images in parallel */
-        var imagePromises = spots.map(function(spot) {
-          var query = spot.imageQuery || (spot.category + " " + city);
-          return fetchPexelsImage(query);
-        });
+        fetchWeather(city);
+        fetchCurrency(parsed.currency);
 
-        var images = await Promise.all(imagePromises);
-
-        spots.forEach(function(spot, i) {
-          var color = CAT_COLORS[spot.category] || "#1A2744";
-          var card = document.createElement("article");
-          card.className = "card";
-
-          var imgHtml = "";
-          if (images[i]) {
-            imgHtml =
-              "<img class='card-img' src='" + images[i] + "' alt='" + esc(spot.name) + "' loading='lazy'/>" +
-              "<div class='card-img-overlay'></div>";
-          } else {
-            imgHtml = "<div class='card-img-placeholder'>" + esc(spot.name) + "</div>";
-          }
-
-          card.innerHTML =
-            "<div class='card-img-wrap' style='background-color:" + color + ";'>" +
-              imgHtml +
-              "<div class='card-stamp'>" + esc(spot.category) + "</div>" +
-              "<div class='card-price-badge'>" + esc(spot.priceRange) + "</div>" +
-            "</div>" +
-            "<div class='card-body'>" +
-              "<div class='card-name'>" + esc(spot.name) + "</div>" +
-              "<p class='card-desc'>" + esc(spot.description) + "</p>" +
-              "<div class='card-divider'></div>" +
-              "<div class='card-info'><div class='card-info-label'>MUST TRY</div><div class='card-info-text'>" + esc(spot.mustTry) + "</div></div>" +
-              "<div class='card-info'><div class='card-info-label'>INSIDER TIP</div><div class='card-info-text'>" + esc(spot.tip) + "</div></div>" +
-            "</div>";
-
-          cardsGrid.appendChild(card);
-        });
-
+        var images = await Promise.all(spots.map(function(s){ return fetchPexelsImage((s.imageQuery||s.category)+" "+city); }));
+        renderCards(spots, city, images);
+        renderBookmarks();
+        renderTrip();
         stateArea.classList.add("hidden");
         resultsArea.classList.remove("hidden");
 
       } catch(err) {
-        showState("!", "Something went wrong", "Here is the exact error:", false, err.message || "Unknown error");
+        showState("!","Something went wrong","Here is the exact error:",false,err.message||"Unknown error");
       }
-
-      exploreBtn.disabled = false;
-      exploreBtn.textContent = "EXPLORE";
+      exploreBtn.disabled=false; exploreBtn.textContent="EXPLORE";
     }
 
-    /* EXPLORE */
     async function handleExplore() {
       var city = getCity();
-      if (!apiKey) { showState("!", "Anthropic key required", "Paste your key above and click SAVE.", false, null); return; }
-      if (!city)   { showState("!", "No city selected", "Click the map, browse the list, or type a city.", false, null); return; }
+      if (!city) { showState("!","No city selected","Click the map, browse the list, or type a city.",false,null); return; }
       await fetchGems(city);
     }
 
-    /* EVENTS */
-    apiSaveBtn.addEventListener("click", saveApiKey);
-    pexelsSaveBtn.addEventListener("click", savePexelsKey);
     exploreBtn.addEventListener("click", handleExplore);
-    apiKeyInput.addEventListener("keydown", function(e){ if(e.key==="Enter") saveApiKey(); });
-    pexelsKeyInput.addEventListener("keydown", function(e){ if(e.key==="Enter") savePexelsKey(); });
     cityTypeInput.addEventListener("keydown", function(e){ if(e.key==="Enter") handleExplore(); });
 
-    /* INIT */
-    buildVibes();
-    buildBrowse();
-    updateKeyStatus();
+    buildVibes(); buildBrowse(); renderBookmarks(); renderTrip();
   </script>
 </body>
 </html>
