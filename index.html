@@ -2,9 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <script>/* Motion: full by default. The footer button turns it off (saved per browser) and adds html.rm. */(function(d){var rm=false;try{rm=localStorage.getItem('hg-motion')==='off'}catch(e){}window.__rm=rm;if(rm)d.classList.add('rm')})(document.documentElement)</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Hidden Gems · A field guide to any city</title>
   <meta name="description" content="Pick any city and a vibe, and Hidden Gems finds six local spots the guidebooks miss, with photos, insider tips, local phrases and a three-day planner."/>
+  <link rel="canonical" href="https://city-azure.vercel.app/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://city-azure.vercel.app/">
+  <meta property="og:title" content="Hidden Gems · A field guide to any city">
+  <meta property="og:description" content="Pick any city and a vibe, and Hidden Gems finds six local spots the guidebooks miss, with photos, insider tips, local phrases and a three-day planner.">
+  <meta property="og:image" content="https://city-azure.vercel.app/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Hidden Gems cover: a field guide to any city">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#1C2321"/>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2C9.4 2 4.5 6.9 4.5 13.1 4.5 21 16 30 16 30s11.5-9 11.5-16.9C27.5 6.9 22.6 2 16 2z' fill='%23C2441C'/%3E%3Cpath d='M16 7.5l5 5-5 6.5-5-6.5z' fill='%23FBF8F1'/%3E%3C/svg%3E"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -427,9 +438,9 @@
     }
 
     /* ═══ MOTION SAFETY ═══ */
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: 0.001ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
-      .skel::after { display: none; }
+    @media all {
+      html.rm *, html.rm *::before, html.rm *::after { animation-duration: 0.001ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+      html.rm .skel::after { display: none; }
     }
 
     /* ═══ PRINT ═══ */
@@ -439,7 +450,9 @@
       .city-banner { background: white; color: black; clip-path: none; border: 1px solid #999; }
       .card, .trip-day { break-inside: avoid; clip-path: none; animation: none; }
     }
-  </style>
+      /* Motion toggle (footer): full motion by default, visitors can turn it off */
+    .motion-toggle { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; min-height: 44px; }
+</style>
 </head>
 <body>
 <a class="skip" href="#finder">Skip to the city finder</a>
@@ -712,7 +725,7 @@
       </div>
     </div>
     <div class="footer-credits">
-      <span>Spots suggested by AI. Check hours and details before you go.</span>
+      <span>Spots suggested by AI. Check hours and details before you go.</span> <button type="button" class="motion-toggle" aria-pressed="false">Turn motion off</button>
       <span>Photos <a href="https://www.pexels.com" target="_blank" rel="noopener noreferrer">Pexels</a> · Map tiles Esri · Places OpenStreetMap · Weather Open-Meteo · Rates Frankfurter</span>
     </div>
   </div>
@@ -781,7 +794,7 @@
     "Chile":["Santiago","Valparaiso","San Pedro de Atacama","Patagonia"],
     "Ecuador":["Quito","Guayaquil","Cuenca","Galapagos"]
   };
-  var REDUCED_MOTION = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var REDUCED_MOTION = !!window.__rm;
 
   /* ════════════════════════════════════════════
      SAFE STORAGE (bad or blocked storage must not break the app)
@@ -1565,5 +1578,6 @@
   ════════════════════════════════════════════ */
   buildVibes(); buildBrowse(); renderBookmarks(); renderTrip(); renderHistory();
 </script>
+<script>(function(){var b=document.querySelector('.motion-toggle');if(!b)return;var off=!!window.__rm;b.textContent=off?'Turn motion on':'Turn motion off';b.setAttribute('aria-pressed',off?'true':'false');b.addEventListener('click',function(){try{localStorage.setItem('hg-motion',off?'on':'off')}catch(e){}location.reload()})})();</script>
 </body>
 </html>
