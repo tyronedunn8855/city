@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <script>/* Motion: full by default. The footer button turns it off (saved per browser) and adds html.rm. */(function(d){var rm=false;try{rm=localStorage.getItem('hg-motion')==='off'}catch(e){}window.__rm=rm;if(rm)d.classList.add('rm')})(document.documentElement)</script>
+  <script>/* Motion: full by default. The footer button turns it off (saved per browser) and adds html.rm. */(function(d){var rm=false;try{rm=localStorage.getItem('hg-motion')==='off'}catch(e){}window.__rm=rm;if(rm)d.classList.add('rm');else{d.classList.add('intro');setTimeout(function(){d.classList.remove('intro')},4000)}})(document.documentElement)</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Hidden Gems · A field guide to any city</title>
   <meta name="description" content="Pick any city and a vibe, and Hidden Gems finds six local spots the guidebooks miss, with photos, insider tips, local phrases and a three-day planner."/>
@@ -437,6 +437,46 @@
       .topbar .btn-tag span { display: none; }
     }
 
+
+    /* ═══ LOADER (html.intro): sits on the cover, then the cover content rises in ═══ */
+    .hg-ld { display: none; }
+    html.intro .hg-ld { display: grid; justify-items: center; gap: 18px; position: absolute; inset: 0; place-content: center; z-index: 5; color: #EFE8D9; transition: opacity .5s ease; }
+    html.intro-out .hg-ld { opacity: 0; }
+    .hg-ld-compass { width: 64px; height: 64px; }
+    .hg-ld-compass .needle { transform-origin: 32px 32px; animation: hg-needle 1.8s cubic-bezier(.16, 1, .3, 1) both; }
+    @keyframes hg-needle { 0% { transform: rotate(-200deg); } 70% { transform: rotate(14deg); } 100% { transform: rotate(0); } }
+    .hg-ld-rule { width: 180px; height: 2px; background: rgba(239, 232, 217, .18); }
+    .hg-ld-rule i { display: block; height: 100%; background: #E8693F; transform: scaleX(0); transform-origin: left; }
+    .hg-ld-label { font-family: var(--mono); font-size: 11px; letter-spacing: .2em; text-transform: uppercase; opacity: .7; }
+    html.intro .intro-content > *, html.intro .intro-foot { opacity: 0; transform: translateY(24px); }
+    .intro-content > *, .intro-foot { transition: opacity .8s cubic-bezier(.23, 1, .32, 1), transform 1s cubic-bezier(.16, 1, .3, 1); }
+    .intro-content > :nth-child(2) { transition-delay: .06s; } .intro-content > :nth-child(3) { transition-delay: .12s; }
+    .intro-content > :nth-child(4) { transition-delay: .18s; } .intro-content > :nth-child(5) { transition-delay: .24s; }
+
+    /* ═══ STATE CHANGES: a short crossfade between idle, loading, error and results ═══ */
+    ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .32s; animation-timing-function: cubic-bezier(.23, 1, .32, 1); }
+    html.rm::view-transition-old(root), html.rm::view-transition-new(root) { animation: none; }
+
+    /* ═══ CARDS: the luggage tags deal in one after another; refiltering replays it ═══ */
+    html:not(.rm) .card { animation: card-in .7s cubic-bezier(.16, 1, .3, 1) both; animation-delay: calc(min(var(--i, 0), 6) * 70ms); }
+    html:not(.rm) .card.re-in { animation: card-in .5s cubic-bezier(.16, 1, .3, 1) both; animation-delay: calc(min(var(--i, 0), 6) * 45ms); }
+    @keyframes card-in { from { opacity: 0; transform: translateY(28px) rotate(-1.2deg); } }
+
+    /* ═══ ERROR + RETRY ═══ */
+    .retry-btn { display: inline-flex; align-items: center; min-height: 44px; margin-top: 12px; padding: 0 18px; border: 1px solid currentColor; background: transparent; color: inherit; font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; cursor: pointer; border-radius: 999px; transition: background-color .16s ease, color .16s ease, transform .16s cubic-bezier(.23, 1, .32, 1); }
+    .retry-btn:active { transform: scale(.97); }
+    .error-box span { display: block; }
+
+    /* ═══ FIELD SHEET: stats fold on phones ═══ */
+    .banner-more { display: none; }
+    @media (max-width: 640px) {
+      .banner-more { display: inline-flex; align-items: center; min-height: 44px; margin: 4px 0 6px; padding: 0 14px; border: 1px solid var(--panel-line); border-radius: 999px; background: transparent; color: inherit; font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; cursor: pointer; }
+      .city-banner:not(.stats-open) .city-stats-row { display: none; }
+      /* Explore stays in reach while you pick a vibe */
+      .vibes-go-wrap .go-btn { position: sticky; bottom: calc(10px + env(safe-area-inset-bottom)); z-index: 3; box-shadow: 0 10px 24px -10px rgba(0, 0, 0, .45); }
+      .hero h1, .hero .hero-title { font-size: clamp(40px, 13vw, 56px); }
+    }
+
     /* ═══ MOTION SAFETY ═══ */
     @media all {
       html.rm *, html.rm *::before, html.rm *::after { animation-duration: 0.001ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
@@ -476,6 +516,12 @@
   <div id="introMap" aria-hidden="true"></div>
   <div class="topo" aria-hidden="true"></div>
   <div class="intro-vignette"></div>
+  <!-- Loader: a compass settles and the rule draws while the fonts and the map library load -->
+  <div class="hg-ld" aria-hidden="true">
+    <svg class="hg-ld-compass" viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".5"/><path d="M32 4v6M32 54v6M4 32h6M54 32h6" stroke="currentColor" stroke-width="1.5"/><g class="needle"><path d="M32 12l5 20h-10z" fill="#E8693F"/><path d="M32 52l-5-20h10z" fill="currentColor" opacity=".6"/></g></svg>
+    <span class="hg-ld-rule"><i></i></span>
+    <span class="hg-ld-label">Unfolding the field guide</span>
+  </div>
   <div class="intro-content">
     <p class="intro-badge">The traveler's field guide</p>
     <p class="intro-title" id="introTitle"><span>Hidden</span><span class="pinned">Gems<svg aria-hidden="true"><use href="#i-pin"/></svg></span></p>
@@ -586,7 +632,7 @@
       <span class="state-icon" id="stateIcon" aria-hidden="true"><svg><use href="#i-compass"/></svg></span>
       <h2 class="state-title" id="stateTitle">Where shall we explore?</h2>
       <p class="state-sub" id="stateSub">Pick a city from the map, browse the list, or type one.</p>
-      <div class="error-box hidden" id="errorBox" role="alert"><strong>Error</strong><span id="errorText"></span></div>
+      <div class="error-box hidden" id="errorBox" role="alert"><strong>What happened</strong><span id="errorText"></span><button type="button" class="retry-btn" id="retryBtn">Try again</button></div>
     </div>
     <div class="skeletons" aria-hidden="true"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
   </div>
@@ -607,7 +653,8 @@
           <div class="city-banner-cond" id="bannerCond"></div>
         </div>
       </div>
-      <div class="city-stats-row">
+      <button type="button" class="banner-more" id="bannerMore" aria-expanded="false" aria-controls="cityStats">City details</button>
+      <div class="city-stats-row" id="cityStats">
         <div class="city-stat">
           <div class="city-stat-label">Local time</div>
           <div class="city-stat-value" id="statLocalTime">--</div>
@@ -935,6 +982,22 @@
   document.addEventListener("keydown", function(e){ if(e.key==="Escape" && introScreenEl.style.display!=="none") closeIntro(e); });
   document.getElementById("introBtn").focus({preventScroll:true});
 
+  /* Loader (html.intro): the rule follows the fonts and the map library actually loading,
+     with a short floor so it reads, then it fades and the cover content rises in. */
+  (function(){
+    var root=document.documentElement;
+    if(!root.classList.contains("intro")) return;
+    var rule=document.querySelector(".hg-ld-rule i"), t0=performance.now(), fontsOk=0, shown=0, done=false;
+    (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(function(){fontsOk=1;});
+    (function tick(){
+      if(done) return;
+      var el=performance.now()-t0, target=Math.min((fontsOk+(window.L?1:0))/2, el/900);
+      shown+=(target-shown)*0.18; rule.style.transform="scaleX("+shown.toFixed(3)+")";
+      if((target>=1&&shown>0.98)||el>2600){ done=true; rule.style.transform="scaleX(1)"; root.classList.add("intro-out"); setTimeout(function(){ root.classList.remove("intro","intro-out"); },700); }
+      else requestAnimationFrame(tick);
+    })();
+  })();
+
   /* ════════════════════════════════════════════
      DARK MODE
   ════════════════════════════════════════════ */
@@ -1099,7 +1162,7 @@
       var cat=btn.dataset.cat;
       var visible=0;
       document.querySelectorAll(".card").forEach(function(card){
-        if(cat==="ALL"||card.dataset.cat===cat){card.classList.remove("cat-hidden");visible++;}
+        if(cat==="ALL"||card.dataset.cat===cat){card.classList.remove("cat-hidden");card.style.setProperty("--i",visible);card.classList.remove("re-in");void card.offsetWidth;card.classList.add("re-in");visible++;}
         else card.classList.add("cat-hidden");
       });
       setCountText(visible);
@@ -1177,7 +1240,11 @@
      STATE DISPLAY
   ════════════════════════════════════════════ */
   var STATE_ICONS = { idle:"#i-compass", loading:"#i-pin", error:"#i-alert" };
-  function showState(icon,title,sub,spinning,errMsg){
+  function swap(fn){
+    if(!REDUCED_MOTION && document.startViewTransition){ document.startViewTransition(fn); } else fn();
+  }
+  function showState(icon,title,sub,spinning,errMsg){ swap(function(){ showStateNow(icon,title,sub,spinning,errMsg); }); }
+  function showStateNow(icon,title,sub,spinning,errMsg){
     var key = spinning ? "loading" : (icon==="!" ? "error" : "idle");
     stateIcon.innerHTML="<svg><use href='"+STATE_ICONS[key]+"'/></svg>";
     stateIcon.className="state-icon"+(spinning?" spinning":"")+(key==="error"?" is-error":"");
@@ -1369,6 +1436,7 @@
       var isBookmarked=bookmarks.some(function(b){return b.name===spot.name;});
       var card=document.createElement("article");
       card.className="card"; card.dataset.cat=String(spot.category||"");
+      card.style.setProperty("--i", i);
       var img=safeImageUrl(images[i]);
       var imgHtml=img
         ?"<img class='card-img' src='"+esc(img)+"' alt='"+esc(spot.name)+"' loading='lazy'/><div class='card-img-overlay'></div>"
@@ -1485,6 +1553,9 @@
       var spots=Array.isArray(parsed.spots)?parsed.spots:[];
       if(!spots.length) throw new Error("No spots came back for "+city+". Try adding the country, or another vibe.");
       currentSpots=spots;
+      // Real stage: the picks are in, the photos are next
+      stateTitle.textContent="Found "+spots.length+" spots in "+city;
+      stateSub.textContent="Pulling a photo for each one...";
 
       // Update info banner
       bannerCity.textContent=city;
@@ -1547,13 +1618,23 @@
       addToHistory(city);
       renderBookmarks();
       renderTrip();
-      stateArea.classList.add("hidden");
-      stateArea.classList.remove("is-loading");
-      resultsArea.classList.remove("hidden");
-      resultsArea.scrollIntoView({behavior: REDUCED_MOTION ? "auto" : "smooth", block:"start"});
+      swap(function(){
+        stateArea.classList.add("hidden");
+        stateArea.classList.remove("is-loading");
+        resultsArea.classList.remove("hidden");
+      });
+      setTimeout(function(){
+        // Phones jump straight to the finds; wider screens start at the field sheet
+        var target = window.matchMedia("(max-width:640px)").matches ? (document.getElementById("cityLabel") && document.getElementById("cityLabel").closest("header, div")) || resultsArea : resultsArea;
+        target.scrollIntoView({behavior: REDUCED_MOTION ? "auto" : "smooth", block:"start"});
+      }, REDUCED_MOTION ? 0 : 60);
 
     }catch(err){
-      showState("!","Something went wrong","Here is the exact error:",false,err.message||"Unknown error");
+      var m=String(err&&err.message||"Unknown error"), t="Something went wrong", sub="The details are below. Try again in a moment.";
+      if(/too many|429|slow down|rate/i.test(m)){ t="Too many searches right now"; sub="Give it a minute, then try again."; }
+      else if(/failed to fetch|network|load failed/i.test(m)){ t="Can't reach the guide"; sub="Check your connection, then try again."; }
+      else if(/no spots came back/i.test(m)){ t="No spots came back"; sub="Try adding the country, or pick another vibe."; }
+      showState("!",t,sub,false,m);
     }
     exploreBtn.disabled=false; exploreBtn.textContent="Explore";
   }
@@ -1571,6 +1652,17 @@
      EVENTS
   ════════════════════════════════════════════ */
   exploreBtn.addEventListener("click",handleExplore);
+  document.getElementById("retryBtn").addEventListener("click",function(){ if(currentCity) fetchGems(currentCity); else handleExplore(); });
+
+  /* Phones: open the finder on the Type tab (quickest on a small screen); fold the field sheet stats */
+  if(window.matchMedia("(max-width:640px)").matches && typeof selectTab==="function") selectTab("type");
+  var bannerMore=document.getElementById("bannerMore");
+  bannerMore.addEventListener("click",function(){
+    var open=bannerMore.getAttribute("aria-expanded")!=="true";
+    bannerMore.setAttribute("aria-expanded",open?"true":"false");
+    bannerMore.textContent=open?"Hide city details":"City details";
+    document.getElementById("cityBanner").classList.toggle("stats-open",open);
+  });
   cityTypeInput.addEventListener("keydown",function(e){if(e.key==="Enter")handleExplore();});
 
   /* ════════════════════════════════════════════
